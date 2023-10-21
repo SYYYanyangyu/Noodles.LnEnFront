@@ -1,0 +1,31 @@
+{
+  "name": "english-admin-template",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --open",
+    "build": "vue-tsc && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@element-plus/icons-vue": "^2.1.0",
+    "axios": "^1.5.1",
+    "element-plus": "^2.3.14",
+    "fast-glob": "^3.3.1",
+    "nprogress": "^0.2.0",
+    "pinia": "^2.1.6",
+    "svg-icons": "^1.0.13",
+    "vite-plugin-svg-icons": "^2.0.1",
+    "vue": "^3.3.4",
+    "vue-router": "^4.2.5"
+  },
+  "devDependencies": {
+    "@types/node": "^20.8.2",
+    "@vitejs/plugin-vue": "^4.2.3",
+    "sass": "^1.68.0",
+    "typescript": "^5.0.2",
+    "vite": "^4.4.5",
+    "vue-tsc": "^1.8.5"
+  }
+}
