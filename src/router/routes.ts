@@ -55,8 +55,7 @@ export const constantRoute = [
             title: '数据大屏',
             icon: 'Platform'
         }
-    }
-    ,
+    },
     {
         path: '/acl',
         component: () => import('@/layout/index.vue'),
@@ -95,8 +94,7 @@ export const constantRoute = [
                 }
             }
         ]
-    }
-    ,
+    },
     {
         path: '/product',
         component: () => import('@/layout/index.vue'),
@@ -141,6 +139,36 @@ export const constantRoute = [
                 meta: {
                     title: 'SKU管理',
                     icon: 'Orange',
+                }
+            },
+        ]
+    },
+    {
+        path:'/file',
+        component: () => import('@/layout/index.vue'),
+        name: 'File',
+        meta: {
+            title: '文件管理',
+            icon: 'Files',
+        },
+        redirect:'/file/management',
+        children: [
+            {
+                path: '/file/management',
+                component: () => import('@/views/file/management/index.vue'),
+                name: "Manage",
+                meta: {
+                    title: '文件预览',
+                    icon: 'Management',
+                }
+            },
+            {
+                path: '/file/upload',
+                component: () => import('@/views/file/upload/index.vue'),
+                name: "Upload",
+                meta: {
+                    title: '文件上传',
+                    icon: 'Files',
                 }
             },
         ]
