@@ -30,7 +30,19 @@
         </div>
 
         <div class="upload—status">
-            this is upload—status
+            <el-card class="status-card">
+                <div class="header">
+                    <h1>上传状态</h1>
+                </div>
+
+                <div class="upload-table">
+                    <el-table :data="tableData" style="width: 100%" :row-class-name="tableRowClassName">
+                        <el-table-column prop="date" label="Date" width="180" />
+                        <el-table-column prop="name" label="Name" width="180" />
+                        <el-table-column prop="address" label="Address" />
+                    </el-table>
+                </div>
+            </el-card>
         </div>
 
     </div>
@@ -46,6 +58,12 @@ import {
     ElCard,
     ElMessage,
 } from 'element-plus';
+
+interface User {
+    date: string
+    name: string
+    address: string
+}
 
 export default defineComponent({
     components: {
@@ -95,6 +113,44 @@ export default defineComponent({
             });
         };
 
+        const tableRowClassName = ({
+            row,
+            rowIndex,
+        }: {
+            row: User
+            rowIndex: number
+        }) => {
+            if (rowIndex === 1) {
+                return 'warning-row'
+            } else if (rowIndex === 3) {
+                return 'success-row'
+            }
+            return ''
+        }
+
+        const tableData: User[] = [
+            {
+                date: '2016-05-03',
+                name: 'Tom',
+                address: 'No. 189, Grove St, Los Angeles',
+            },
+            {
+                date: '2016-05-02',
+                name: 'Tom',
+                address: 'No. 189, Grove St, Los Angeles',
+            },
+            {
+                date: '2016-05-04',
+                name: 'Tom',
+                address: 'No. 189, Grove St, Los Angeles',
+            },
+            {
+                date: '2016-05-01',
+                name: 'Tom',
+                address: 'No. 189, Grove St, Los Angeles',
+            },
+        ]
+
         return {
             form,
             rules,
@@ -103,6 +159,8 @@ export default defineComponent({
             handleAudioSuccess,
             handleSubtitleSuccess,
             handleUploadError,
+            tableRowClassName,
+            tableData
         };
     },
 });
@@ -113,44 +171,92 @@ export default defineComponent({
     display: flex;
     justify-content: center;
     align-items: center;
-    min-height: 30vh;
+    min-height: 30%;
+
+    .upload-card {
+        width: 95%;
+
+        .header {
+            background-color: #007BFF;
+            padding: 20px;
+            text-align: center;
+            color: #fff;
+            font-size: 24px;
+            border-radius: 5px 5px 0 0;
+        }
+
+        .upload-form {
+            padding: 20px;
+            border-radius: 0 0 5px 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            margin-top: 20px;
+
+
+            .el-form-item {
+                margin-bottom: 15px;
+            }
+
+            .el-button {
+                width: 100%;
+            }
+
+            .upload-demo {
+                display: flex;
+                justify-content: space-between;
+            }
+
+            .el-upload__tip {
+                text-align: center;
+            }
+        }
+    }
 }
 
-.upload-card {
-    width: 80%;
-}
-
-.header {
-    background-color: #007BFF;
-    padding: 20px;
-    text-align: center;
-    color: #fff;
-    font-size: 24px;
-    border-radius: 5px 5px 0 0;
-}
-
-.upload-form {
-    padding: 20px;
-    border-radius: 0 0 5px 5px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-    margin-top: 20px;
-}
-
-.el-form-item {
-    margin-bottom: 15px;
-}
-
-.el-button {
-    width: 100%;
-}
-
-.upload-demo {
+.upload—status {
     display: flex;
-    justify-content: space-between;
-}
+    justify-content: center;
+    align-items: center;
+    /* min-height: 65vh;  */
+    
+    .status-card {
+        width: 95%;
+        height: 70%;
 
-.el-upload__tip {
-    text-align: center;
+        .header {
+            background-color: #007BFF;
+            padding: 20px;
+            text-align: center;
+            color: #fff;
+            font-size: 24px;
+            border-radius: 5px 5px 0 0;
+        }
+
+        .upload-table {
+            padding: 20px;
+            border-radius: 0 0 5px 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            margin-top: 20px;
+
+
+            .el-form-item {
+                margin-bottom: 15px;
+            }
+
+            .el-button {
+                width: 100%;
+            }
+
+            .upload-demo {
+                display: flex;
+                justify-content: space-between;
+            }
+
+            .el-upload__tip {
+                text-align: center;
+            }
+        }
+
+    }
 }
 </style>
   
