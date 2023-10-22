@@ -116,7 +116,7 @@ export default {
         width: calc(100% - $base-menu-width);
         overflow: auto;
         transition: all 0.3s;
-        //padding: 20px;
+        padding: 20px;
 
         &.fold {
             width: calc(100% - $base-menu-min-width );

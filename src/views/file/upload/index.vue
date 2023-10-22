@@ -42,6 +42,10 @@
                         <el-table-column prop="address" label="Address" />
                     </el-table>
                 </div>
+
+                <div class="upload-pagenation">
+                    <el-pagination small background layout="prev, pager, next" :total="50" class="mt-4" />
+                </div>
             </el-card>
         </div>
 
@@ -149,6 +153,36 @@ export default defineComponent({
                 name: 'Tom',
                 address: 'No. 189, Grove St, Los Angeles',
             },
+            {
+                date: '2016-05-01',
+                name: 'Tom',
+                address: 'No. 189, Grove St, Los Angeles',
+            },
+            {
+                date: '2016-05-01',
+                name: 'Tom',
+                address: 'No. 189, Grove St, Los Angeles',
+            },
+            {
+                date: '2016-05-01',
+                name: 'Tom',
+                address: 'No. 189, Grove St, Los Angeles',
+            },
+            {
+                date: '2016-05-01',
+                name: 'Tom',
+                address: 'No. 189, Grove St, Los Angeles',
+            },
+            {
+                date: '2016-05-01',
+                name: 'Tom',
+                address: 'No. 189, Grove St, Los Angeles',
+            },
+            {
+                date: '2016-05-01',
+                name: 'Tom',
+                address: 'No. 189, Grove St, Los Angeles',
+            },
         ]
 
         return {
@@ -175,6 +209,7 @@ export default defineComponent({
 
     .upload-card {
         width: 95%;
+        min-height: 25%;
 
         .header {
             background-color: #007BFF;
@@ -217,10 +252,11 @@ export default defineComponent({
     justify-content: center;
     align-items: center;
     /* min-height: 65vh;  */
-    
+    margin-top: 20px;
+
     .status-card {
         width: 95%;
-        height: 70%;
+        height: 65%;
 
         .header {
             background-color: #007BFF;
@@ -254,6 +290,15 @@ export default defineComponent({
             .el-upload__tip {
                 text-align: center;
             }
+        }
+
+        .upload-pagenation {
+            display: flex;
+            justify-content: center;
+            padding: 20px;
+            border-radius: 0 0 5px 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            margin-top: 20px;
         }
 
     }
