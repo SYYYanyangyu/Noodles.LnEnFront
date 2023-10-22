@@ -2,8 +2,7 @@ import { createApp } from 'vue'
 import App from './App.vue'
 
 // package
-// axios
-import axios from 'axios'
+
 // elementPlus
 import ElementPlus from 'element-plus'
 import 'element-plus/dist/index.css'

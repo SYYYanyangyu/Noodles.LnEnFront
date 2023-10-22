@@ -111,7 +111,7 @@ export default {
         position: absolute;
         top: $base-tabbar-height;
         left: $base-menu-width;
-        background: yellow;
+        //background: yellow;
         height: calc(100vh - $base-tabbar-height);
         width: calc(100% - $base-menu-width);
         overflow: auto;
