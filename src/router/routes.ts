@@ -144,6 +144,36 @@ export const constantRoute = [
     //     ]
     // },
     {
+        path:'/category',
+        component: () => import('@/layout/index.vue'),
+        name: 'Category',
+        meta: {
+            title: '目录管理',
+            icon: 'Collection',
+        },
+        redirect:'/category/listenType',
+        children: [
+            {
+                path: '/category/listenType',
+                component: () => import('@/views/category/listentype/album/index.vue'),
+                name: "Listentype",
+                meta: {
+                    title: '听力管理',
+                    icon: 'Headset',
+                }
+            },
+            {
+                path: '/category/listenType',
+                component: () => import('@/views/category/listentype/album/index.vue'),
+                name: "Listentype",
+                meta: {
+                    title: '听力管理',
+                    icon: 'Flag',
+                }
+            },
+        ]
+    },
+    {
         path:'/file',
         component: () => import('@/layout/index.vue'),
         name: 'File',
