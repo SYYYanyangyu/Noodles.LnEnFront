@@ -30,7 +30,6 @@ let useUserStore = defineStore('User', {
             if (result.code == 200) {
                 //pinia仓库存储一下token
                 //由于pinia|vuex存储数据其实利用js对象
-
                 let token = "Bearer " + result.data;
 
                 this.token = (token as string);

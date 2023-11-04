@@ -1,5 +1,11 @@
 <script setup lang="ts">
 
+import { reqAdd } from '@/api/listenadmin';
+import type {
+    AlbumAddResponse,
+    reqblumList
+} from "@/api/listenadmin/type";
+
 interface User {
     date: string
     name: string
@@ -10,8 +16,8 @@ import { reactive, ref } from 'vue'
 const dialogFormVisible = ref(false)
 const formLabelWidth = '140px'
 const form = reactive({
-    englishdes: '',
-    chinesedes: '',
+    english: '',
+    chinese: '',
     region: '',
     date1: '',
     date2: '',
@@ -20,6 +26,26 @@ const form = reactive({
     resource: '',
     desc: '',
 })
+
+const addform = reactive({
+    name: {
+        english: '',
+        chinese: '',
+    },
+    categoryId: '3fa85f64-5717-4562-b3fc-2c963f66afa6'
+});
+
+const getBlumList = async() => {
+    
+}
+
+const addblum = async () => {
+    addform.name.english = form.english;
+    addform.name.chinese = form.chinese;
+    let result: AlbumAddResponse = await reqAdd(addform);
+
+    console.log(result);
+}
 
 const fileList = ref<UploadUserFile[]>([
     {
@@ -31,15 +57,12 @@ const fileList = ref<UploadUserFile[]>([
         url: 'https://fuss10.elemecdn.com/3/63/4e7f3a15429bfda99bce42a18cdd1jpeg.jpeg?imageMogr2/thumbnail/360x360/format/webp/quality/100',
     },
 ])
-
 const handleRemove: UploadProps['onRemove'] = (uploadFile, uploadFiles) => {
     console.log(uploadFile, uploadFiles)
 }
-
 const handlePreview: UploadProps['onPreview'] = (file) => {
     console.log(file)
 }
-
 const tableRowClassName = ({
     row,
     rowIndex,
@@ -106,6 +129,8 @@ const tableData: User[] = [
         address: 'No. 189, Grove St, Los Angeles',
     },
 ]
+
+
 </script>
 
 <template>
@@ -145,17 +170,16 @@ const tableData: User[] = [
         </el-row>
     </div>
 
-
     <div class="type_modal">
         <el-dialog v-model="dialogFormVisible" title="添加分类">
             <el-form :model="form">
 
                 <el-form-item label="english title" :label-width="formLabelWidth">
-                    <el-input v-model="form.englishdes" autocomplete="off" />
+                    <el-input v-model="form.english" autocomplete="off" />
                 </el-form-item>
 
                 <el-form-item label="chinese title" :label-width="formLabelWidth">
-                    <el-input v-model="form.chinesedes" autocomplete="off" />
+                    <el-input v-model="form.chinese" autocomplete="off" />
                 </el-form-item>
 
                 <el-form-item label="Zones" :label-width="formLabelWidth">
@@ -180,7 +204,7 @@ const tableData: User[] = [
             <template #footer>
                 <span class="dialog-footer">
                     <el-button @click="dialogFormVisible = false">取消</el-button>
-                    <el-button type="primary" @click="dialogFormVisible = false">
+                    <el-button type="primary" @click="addblum">
                         确认
                     </el-button>
                 </span>
@@ -199,8 +223,6 @@ const tableData: User[] = [
         justify-content: space-between;
         align-items: center;
     }
-
-
 }
 
 .table-card {
@@ -212,7 +234,6 @@ const tableData: User[] = [
         border-radius: 0 0 5px 5px;
         box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
         margin-top: 20px;
-
 
         .el-form-item {
             margin-bottom: 15px;
@@ -256,5 +277,4 @@ const tableData: User[] = [
 
 .el-table .success-row {
     --el-table-tr-bg-color: var(--el-color-success-light-9);
-}
-</style>
+}</style>
