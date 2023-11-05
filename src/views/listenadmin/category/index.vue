@@ -21,6 +21,7 @@ const form = reactive({
     resource: '',
     desc: '',
     currentId: '',
+    coverUrl: ''
 })
 const addform = reactive({
     name: {
@@ -72,10 +73,6 @@ const formatDefault = (row: CategoryResponse) => {
 const fileList = ref<UploadUserFile[]>([
     {
         name: 'food.jpeg',
-        url: 'https://fuss10.elemecdn.com/3/63/4e7f3a15429bfda99bce42a18cdd1jpeg.jpeg?imageMogr2/thumbnail/360x360/format/webp/quality/100',
-    },
-    {
-        name: 'food2.jpeg',
         url: 'https://fuss10.elemecdn.com/3/63/4e7f3a15429bfda99bce42a18cdd1jpeg.jpeg?imageMogr2/thumbnail/360x360/format/webp/quality/100',
     },
 ])
@@ -136,15 +133,17 @@ const handleDelete = async (row: CategoryResponse) => {
                             <el-table-column prop="coverUrl" label="封面" width="180" />
                             <el-table-column prop="name" label="中文标题" width="200"
                                 :formatter="formatCategpryChineseName"></el-table-column>
-                            <el-table-column prop="name" label="英文标题"
-                                :formatter="formatCategpryEnglishName" width="500"></el-table-column>
+                            <el-table-column prop="name" label="英文标题" :formatter="formatCategpryEnglishName"
+                                width="350"></el-table-column>
                             <el-table-column prop="creationTime" label="创建时间" />
                             <el-table-column prop="lastModificationTime" label="最近修改时间" :formatter="formatDefault" />
-                            <el-table-column label="Operations">
+                            <el-table-column label="操作" width="250" align="right">
                                 <template #default="scope">
-                                    <el-button size="small" @click="handleEdit(scope.row)">Edit</el-button>
+                                    <el-button size="small" @click="handleEdit(scope.row)">修改</el-button>
                                     <el-button size="small" type="danger"
-                                        @click="handleDelete(scope.row)">Delete</el-button>
+                                        @click="handleDelete(scope.row)">删除</el-button>
+                                    <el-button size="small" type="primary"
+                                        @click="handleEdit(scope.row)">管理专辑</el-button>
                                 </template>
                             </el-table-column>
                         </el-table>
@@ -162,24 +161,26 @@ const handleDelete = async (row: CategoryResponse) => {
         <el-dialog v-model="dialogFormVisible" :title="dialogTitle">
             <el-form :model="form">
 
-                <el-form-item label="english title" :label-width="formLabelWidth">
+                <el-form-item label="英文标题" :label-width="formLabelWidth">
                     <el-input v-model="form.english" autocomplete="off" />
                 </el-form-item>
 
-                <el-form-item label="chinese title" :label-width="formLabelWidth">
+                <el-form-item label="中文标题" :label-width="formLabelWidth">
                     <el-input v-model="form.chinese" autocomplete="off" />
                 </el-form-item>
 
-                <el-form-item label="Zones" :label-width="formLabelWidth">
-                    <el-select v-model="form.region" placeholder="Please select a zone">
-                        <el-option label="Zone No.1" value="shanghai" />
-                        <el-option label="Zone No.2" value="beijing" />
-                    </el-select>
+                <el-form-item label="coverUrl" :label-width="formLabelWidth">
+                    <el-input v-model="form.coverUrl" autocomplete="off" />
                 </el-form-item>
 
-                <el-upload v-model:file-list="fileList" class="upload-demo"
-                    action="https://run.mocky.io/v3/9d059bf9-4660-45f2-925d-ce80ad6c4d15" :on-preview="handlePreview"
-                    :on-remove="handleRemove" list-type="picture">
+                <!-- action="https://run.mocky.io/v3/9d059bf9-4660-45f2-925d-ce80ad6c4d15"  -->
+                <el-upload v-model:file-list="fileList" 
+                    class="upload-demo"
+                    action="http://localhost:5098/FileService/Uploader/UploadImages" 
+                    :on-preview="handlePreview"
+                    :on-remove="handleRemove" 
+                    :auto-upload="true"
+                    list-type="picture">
                     <el-button type="primary">Click to upload</el-button>
                     <template #tip>
                         <div class="el-upload__tip">
