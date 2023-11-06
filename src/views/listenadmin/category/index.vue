@@ -176,7 +176,7 @@ const handleDelete = async (row: CategoryResponse) => {
                 <!-- action="https://run.mocky.io/v3/9d059bf9-4660-45f2-925d-ce80ad6c4d15"  -->
                 <el-upload v-model:file-list="fileList" 
                     class="upload-demo"
-                    action="http://localhost:5098/FileService/Uploader/UploadImages" 
+                    action="http://localhost/FileService/Uploader/UploadImages" 
                     :on-preview="handlePreview"
                     :on-remove="handleRemove" 
                     :auto-upload="true"
