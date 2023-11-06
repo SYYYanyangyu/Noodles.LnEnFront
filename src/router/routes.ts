@@ -144,18 +144,18 @@ export const constantRoute = [
     //     ]
     // },
     {
-        path:'/category',
+        path:'/listenadmin',
         component: () => import('@/layout/index.vue'),
         name: 'Category',
         meta: {
             title: '目录管理',
             icon: 'Collection',
         },
-        redirect:'/category/listenType',
+        redirect:'/listenadmin/category',
         children: [
             {
-                path: '/category/listenType',
-                component: () => import('@/views/category/listentype/album/index.vue'),
+                path: '/listenadmin/category',
+                component: () => import('@/views/listenadmin/category/index.vue'),
                 name: "Listentype",
                 meta: {
                     title: '听力管理',
@@ -163,9 +163,9 @@ export const constantRoute = [
                 }
             },
             {
-                path: '/category/listenType',
-                component: () => import('@/views/category/listentype/album/index.vue'),
-                name: "Listentype",
+                path: '/listenadmin/album',
+                component: () => import('@/views/listenadmin/album/index.vue'),
+                name: "album",
                 meta: {
                     title: '听力管理',
                     icon: 'Flag',
