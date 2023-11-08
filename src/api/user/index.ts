@@ -7,8 +7,8 @@ import type {
 } from './type'
 //项目用户相关的请求地址
 enum API {
-  LOGIN_URL = '/Login/LoginByUserNameAndPwd',
-  USERINFO_URL = '/Login/GetUserInfo',
+  LOGIN_URL = '/IdentityService/Login/LoginByUserNameAndPwd',
+  USERINFO_URL = '/IdentityService/Login/GetUserInfo',
   LOGOUT_URL = '/admin/acl/index/logout',
 }
 

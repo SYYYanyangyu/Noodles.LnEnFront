@@ -1,10 +1,8 @@
 <script setup lang="ts">
 
-import { reqAdd } from '@/api/listenadmin';
-import type {
-    AlbumAddResponse,
-    reqblumList
-} from "@/api/listenadmin/type";
+import { reqAdd, reqblumList } from '@/api/listenadmin/ablum';
+import { useRouter, useRoute } from 'vue-router';
+import type {   AlbumListResponse } from "@/api/listenadmin/ablum/type";
 
 interface User {
     date: string
@@ -12,8 +10,9 @@ interface User {
     address: string
 }
 
-import { reactive, ref } from 'vue'
+import { reactive, ref ,onMounted} from 'vue'
 const dialogFormVisible = ref(false)
+const  categoryId = ref('')
 const formLabelWidth = '140px'
 const form = reactive({
     english: '',
@@ -27,6 +26,11 @@ const form = reactive({
     desc: '',
 })
 
+//获取路由器
+let $router = useRouter();
+//路由对象
+let $route = useRoute();
+
 const addform = reactive({
     name: {
         english: '',
@@ -35,8 +39,13 @@ const addform = reactive({
     categoryId: '3fa85f64-5717-4562-b3fc-2c963f66afa6'
 });
 
-const getBlumList = async() => {
-    
+onMounted( () => {
+    console.log($route.params.categorgId)
+});
+
+
+const getBlumList = async () => {
+
 }
 
 const addblum = async () => {
@@ -277,4 +286,5 @@ const tableData: User[] = [
 
 .el-table .success-row {
     --el-table-tr-bg-color: var(--el-color-success-light-9);
-}</style>
+}
+</style>

@@ -1,10 +1,16 @@
 <script setup lang="ts">
-import { reactive, ref, onMounted } from 'vue'
+import { reactive, ref, onMounted } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
 import { ElNotification, ElMessageBox } from 'element-plus';
 import { reqAdd, reqCategoryList, reqEdit, reqDelete, reqFind } from '@/api/listenadmin/category';
 import type {
     CategoryResponse
 } from "@/api/listenadmin/category/type";
+
+//获取路由器
+let $router = useRouter();
+//路由对象
+let $route = useRoute();
 
 const dialogFormVisible = ref(false)
 const dialogTitle = ref('添加');
@@ -107,6 +113,11 @@ const handleDelete = async (row: CategoryResponse) => {
             // catch error
         })
 }
+
+const handleAblum = async (row: CategoryResponse) => {
+    $router.push({ path: `/listenadmin/ablum${row.id }`})  // 使用 id 进行路由跳转  
+}
+
 </script>
 
 <template>
@@ -140,10 +151,8 @@ const handleDelete = async (row: CategoryResponse) => {
                             <el-table-column label="操作" width="250" align="right">
                                 <template #default="scope">
                                     <el-button size="small" @click="handleEdit(scope.row)">修改</el-button>
-                                    <el-button size="small" type="danger"
-                                        @click="handleDelete(scope.row)">删除</el-button>
-                                    <el-button size="small" type="primary"
-                                        @click="handleEdit(scope.row)">管理专辑</el-button>
+                                    <el-button size="small" type="danger" @click="handleDelete(scope.row)">删除</el-button>
+                                    <el-button size="small" type="primary" @click="handleAblum(scope.row)">管理专辑</el-button>
                                 </template>
                             </el-table-column>
                         </el-table>
@@ -174,13 +183,9 @@ const handleDelete = async (row: CategoryResponse) => {
                 </el-form-item>
 
                 <!-- action="https://run.mocky.io/v3/9d059bf9-4660-45f2-925d-ce80ad6c4d15"  -->
-                <el-upload v-model:file-list="fileList" 
-                    class="upload-demo"
-                    action="http://localhost/FileService/Uploader/UploadImages" 
-                    :on-preview="handlePreview"
-                    :on-remove="handleRemove" 
-                    :auto-upload="true"
-                    list-type="picture">
+                <el-upload v-model:file-list="fileList" class="upload-demo"
+                    action="http://localhost/FileService/Uploader/UploadImages" :on-preview="handlePreview"
+                    :on-remove="handleRemove" :auto-upload="true" list-type="picture">
                     <el-button type="primary">Click to upload</el-button>
                     <template #tip>
                         <div class="el-upload__tip">

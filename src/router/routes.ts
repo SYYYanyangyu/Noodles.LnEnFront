@@ -156,21 +156,30 @@ export const constantRoute = [
             {
                 path: '/listenadmin/category',
                 component: () => import('@/views/listenadmin/category/index.vue'),
-                name: "Listentype",
+                name: "category",
                 meta: {
                     title: '听力管理',
                     icon: 'Headset',
                 }
             },
             {
-                path: '/listenadmin/album',
-                component: () => import('@/views/listenadmin/album/index.vue'),
-                name: "album",
+                path: '/listenadmin/ablum:categorgId',
+                component: () => import('@/views/listenadmin/ablum/index.vue'),
+                name: "ablum",
                 meta: {
-                    title: '听力管理',
+                    title: '专辑管理',
                     icon: 'Flag',
                 }
             },
+            {
+                path: '/listenadmin/episode',
+                component: () => import('@/views/listenadmin/episode/index.vue'),
+                name: "episode",
+                meta: {
+                    title: '片段管理',
+                    icon: 'Flag',
+                }
+            }
         ]
     },
     {
