@@ -1,18 +1,17 @@
 <script setup lang="ts">
 
-import { reqAdd, reqblumList } from '@/api/listenadmin/ablum';
+import { ElNotification, ElMessageBox } from 'element-plus';
+import { reqAdd, reqblumList, reqEdit, reqDelete, reqFind } from '@/api/listenadmin/ablum';
 import { useRouter, useRoute } from 'vue-router';
-import type {   AlbumListResponse } from "@/api/listenadmin/ablum/type";
-
-interface User {
-    date: string
-    name: string
-    address: string
-}
-
-import { reactive, ref ,onMounted} from 'vue'
+import type { AlbumListResponse, AlbumAddRequest } from "@/api/listenadmin/ablum/type";
+import { reactive, ref, onMounted } from 'vue'
+//获取路由器
+let $router = useRouter();
+//路由对象
+let $route = useRoute();
+const dialogTitle = ref('添加');
 const dialogFormVisible = ref(false)
-const  categoryId = ref('')
+const tableData = ref<AlbumListResponse[]>([]); // 使用 ref 函数定义一个响应式的变量
 const formLabelWidth = '140px'
 const form = reactive({
     english: '',
@@ -24,121 +23,84 @@ const form = reactive({
     type: [],
     resource: '',
     desc: '',
+    currentId: '',
+    categoryId: $route.params.categorgId as string
 })
-
-//获取路由器
-let $router = useRouter();
-//路由对象
-let $route = useRoute();
 
 const addform = reactive({
     name: {
         english: '',
         chinese: '',
     },
-    categoryId: '3fa85f64-5717-4562-b3fc-2c963f66afa6'
+    categoryId: $route.params.categorgId as string
 });
 
-onMounted( () => {
-    console.log($route.params.categorgId)
+onMounted(async () => {
+    const categorgId = $route.params.categorgId as string;
+    await getAblumList(categorgId);
 });
 
-
-const getBlumList = async () => {
-
+const getAblumList = async (categorgId: string) => {
+    let result: AlbumListResponse[] = await reqblumList(categorgId)
+    tableData.value = result;
 }
 
-const addblum = async () => {
+const formatEpisodeChineseName = (row: AlbumListResponse) => {
+    return row.name.chinese; // 从对象的属性中获取需要渲染的值，例如这里返回 name 的 chinese 属性值
+};
+
+const formatEpisodeEnglishName = (row: AlbumListResponse) => {
+    return row.name.english; // 从对象的属性中获取需要渲染的值，例如这里返回 name 的 chinese 属性值
+};
+
+
+const editAlbum = async () => {
     addform.name.english = form.english;
     addform.name.chinese = form.chinese;
-    let result: AlbumAddResponse = await reqAdd(addform);
+    let titlevalue = dialogTitle.value;
 
-    console.log(result);
-}
-
-const fileList = ref<UploadUserFile[]>([
-    {
-        name: 'food.jpeg',
-        url: 'https://fuss10.elemecdn.com/3/63/4e7f3a15429bfda99bce42a18cdd1jpeg.jpeg?imageMogr2/thumbnail/360x360/format/webp/quality/100',
-    },
-    {
-        name: 'food2.jpeg',
-        url: 'https://fuss10.elemecdn.com/3/63/4e7f3a15429bfda99bce42a18cdd1jpeg.jpeg?imageMogr2/thumbnail/360x360/format/webp/quality/100',
-    },
-])
-const handleRemove: UploadProps['onRemove'] = (uploadFile, uploadFiles) => {
-    console.log(uploadFile, uploadFiles)
-}
-const handlePreview: UploadProps['onPreview'] = (file) => {
-    console.log(file)
-}
-const tableRowClassName = ({
-    row,
-    rowIndex,
-}: {
-    row: User
-    rowIndex: number
-}) => {
-    if (rowIndex === 1) {
-        return 'warning-row'
-    } else if (rowIndex === 3) {
-        return 'success-row'
+    if (titlevalue == "修改") {
+        await reqEdit(form.currentId, addform);
+    } else {
+        await reqAdd(addform);
     }
-    return ''
-}
-const tableData: User[] = [
-    {
-        date: '2016-05-03',
-        name: 'Tom',
-        address: 'No. 189, Grove St, Los Angeles',
-    },
-    {
-        date: '2016-05-02',
-        name: 'Tom',
-        address: 'No. 189, Grove St, Los Angeles',
-    },
-    {
-        date: '2016-05-04',
-        name: 'Tom',
-        address: 'No. 189, Grove St, Los Angeles',
-    },
-    {
-        date: '2016-05-01',
-        name: 'Tom',
-        address: 'No. 189, Grove St, Los Angeles',
-    },
-    {
-        date: '2016-05-02',
-        name: 'Tom',
-        address: 'No. 189, Grove St, Los Angeles',
-    },
-    {
-        date: '2016-05-04',
-        name: 'Tom',
-        address: 'No. 189, Grove St, Los Angeles',
-    },
-    {
-        date: '2016-05-01',
-        name: 'Tom',
-        address: 'No. 189, Grove St, Los Angeles',
-    },
-    {
-        date: '2016-05-02',
-        name: 'Tom',
-        address: 'No. 189, Grove St, Los Angeles',
-    },
-    {
-        date: '2016-05-04',
-        name: 'Tom',
-        address: 'No. 189, Grove St, Los Angeles',
-    },
-    {
-        date: '2016-05-01',
-        name: 'Tom',
-        address: 'No. 189, Grove St, Los Angeles',
-    },
-]
 
+    ElNotification({
+        type: 'success',
+        message: `${titlevalue}完成`,
+    });
+
+    await getAblumList(form.categoryId);
+}
+
+const handleEdit = async (row: AlbumListResponse) => {
+    dialogFormVisible.value = true;
+    dialogTitle.value = "修改"
+    let ablum: AlbumListResponse = await reqFind(row.id)
+    form.english = ablum.name.english;
+    form.chinese = ablum.name.chinese;
+    form.currentId = row.id;
+}
+
+const handleDelete = async (row: AlbumListResponse) => {
+    ElMessageBox.confirm('Are you sure to close this dialog?')
+        .then(async () => {
+            await reqDelete(row.id);
+            ElNotification({
+                type: 'success',
+                message: `删除完成`,
+            });
+
+            await getAblumList(form.categoryId);
+        })
+        .catch(() => {
+            // catch error
+        })
+}
+
+const handleEpisode = async (row: AlbumListResponse) => {
+    $router.push({ path: `/listenadmin/ablum${row.id}` })  // 使用 id 进行路由跳转  
+}
 
 </script>
 
@@ -156,31 +118,51 @@ const tableData: User[] = [
                             </el-row>
                         </div>
                     </template>
-                    <!-- <div v-for="o in 4" :key="o" class="text item">{{ 'List item ' + o }}</div> -->
                 </el-card>
             </el-col>
             <el-col :span="24">
                 <el-card class="table-card">
-
                     <div class="type-table">
-                        <el-table :data="tableData" style="width: 100%" :row-class-name="tableRowClassName">
-                            <el-table-column prop="date" label="Date" width="180" />
-                            <el-table-column prop="name" label="Name" width="180" />
-                            <el-table-column prop="address" label="Address" />
+                        <el-table :data="tableData" style="width: 100%">
+                            <el-table-column prop="name" label="中文标题" :formatter="formatEpisodeChineseName">
+                                <template v-slot:default="{ row }">
+                                    <span :class="row.isVisible === false ? 'strike' : ''">{{
+                                        formatEpisodeChineseName(row) }}</span>
+                                </template>
+                            </el-table-column>
+                            <el-table-column prop="name" label="英文标题" :formatter="formatEpisodeEnglishName">
+                                <template v-slot:default="{ row }">
+                                    <span :class="row.isVisible === false ? 'strike' : ''">{{
+                                        formatEpisodeEnglishName(row) }}</span>
+                                </template>
+                            </el-table-column>
+                            <el-table-column prop="creationTime" label="创建时间">
+                                <template v-slot:default="{ row }">
+                                    <span :class="row.isVisible === false ? 'strike' : ''">{{ row.creationTime }}</span>
+                                </template>
+                            </el-table-column>
+                            <el-table-column label="操作">
+                                <template #default="scope">
+                                    <el-button size="small" type="danger" @click="handleDelete(scope.row)">删除</el-button>
+                                    <el-button size="small" @click="handleEdit(scope.row)">修改</el-button>
+                                    <el-button size="small" type="primary" @click="handleEdit(scope.row)">显示音频</el-button>
+                                    <el-button size="small" type="primary"
+                                        @click="handleEpisode(scope.row)">管理专辑</el-button>
+                                </template>
+                            </el-table-column>
                         </el-table>
                     </div>
 
                     <div class="type-pagenation">
                         <el-pagination small background layout="prev, pager, next" :total="50" class="mt-4" />
                     </div>
-
                 </el-card>
             </el-col>
         </el-row>
     </div>
 
     <div class="type_modal">
-        <el-dialog v-model="dialogFormVisible" title="添加分类">
+        <el-dialog v-model="dialogFormVisible" :title="dialogTitle">
             <el-form :model="form">
 
                 <el-form-item label="english title" :label-width="formLabelWidth">
@@ -191,29 +173,11 @@ const tableData: User[] = [
                     <el-input v-model="form.chinese" autocomplete="off" />
                 </el-form-item>
 
-                <el-form-item label="Zones" :label-width="formLabelWidth">
-                    <el-select v-model="form.region" placeholder="Please select a zone">
-                        <el-option label="Zone No.1" value="shanghai" />
-                        <el-option label="Zone No.2" value="beijing" />
-                    </el-select>
-                </el-form-item>
-
-                <el-upload v-model:file-list="fileList" class="upload-demo"
-                    action="https://run.mocky.io/v3/9d059bf9-4660-45f2-925d-ce80ad6c4d15" :on-preview="handlePreview"
-                    :on-remove="handleRemove" list-type="picture">
-                    <el-button type="primary">Click to upload</el-button>
-                    <template #tip>
-                        <div class="el-upload__tip">
-                            jpg/png files with a size less than 500kb
-                        </div>
-                    </template>
-                </el-upload>
-
             </el-form>
             <template #footer>
                 <span class="dialog-footer">
                     <el-button @click="dialogFormVisible = false">取消</el-button>
-                    <el-button type="primary" @click="addblum">
+                    <el-button type="primary" @click="editAlbum">
                         确认
                     </el-button>
                 </span>
@@ -246,10 +210,6 @@ const tableData: User[] = [
 
         .el-form-item {
             margin-bottom: 15px;
-        }
-
-        .el-button {
-            width: 100%;
         }
 
         .upload-demo {
@@ -286,5 +246,9 @@ const tableData: User[] = [
 
 .el-table .success-row {
     --el-table-tr-bg-color: var(--el-color-success-light-9);
+}
+
+.strike {
+    text-decoration: line-through;
 }
 </style>
