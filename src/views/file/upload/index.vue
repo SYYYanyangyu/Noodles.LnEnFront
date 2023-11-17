@@ -7,23 +7,42 @@
                 </div>
                 <div class="upload-form">
                     <el-form :model="form" :rules="rules" ref="formRef" label-width="120px">
+                        <el-form-item label="中文名称">
+                            <el-input v-model="form.chinese" class="responsive-input" />
+                        </el-form-item>
+
+                        <el-form-item label="英文名称">
+                            <el-input v-model="form.english" class="responsive-input" />
+                        </el-form-item>
+
                         <el-form-item label="音频文件" prop="audioFile">
                             <el-upload class="upload-demo" action="/your-audio-upload-endpoint"
                                 :on-success="handleAudioSuccess" :on-error="handleUploadError" :limit="1"
                                 :show-file-list="false">
                                 <el-button type="primary">选择文件</el-button>
                             </el-upload>
+                            <div style="text-align: center; margin-left: 10px;margin-top: 15px;">
+                                <el-progress :percentage="100" status="success" />
+                            </div>
                         </el-form-item>
+
+                        <el-form-item label="音频时长">
+                            <el-input v-model="form.durationInSecond" disabled class="responsive-input" />
+                        </el-form-item>
+
+                        <el-form-item label="音频时长">
+                            <el-input v-model="form.durationInSecond" disabled class="responsive-input" />
+                        </el-form-item>
+
                         <el-form-item label="字幕文件" prop="subtitleFile">
-                            <el-upload class="upload-demo" action="/your-subtitle-upload-endpoint"
-                                :on-success="handleSubtitleSuccess" :on-error="handleUploadError" :limit="1"
-                                :show-file-list="false">
-                                <el-button type="primary">选择文件</el-button>
-                            </el-upload>
+                            <el-input v-model="textarea" :rows="5" type="textarea" placeholder="请输入字幕文件"
+                                class="responsive-input" />
                         </el-form-item>
+
                         <el-form-item>
                             <el-button type="primary" @click="submitForm">上传</el-button>
                         </el-form-item>
+
                     </el-form>
                 </div>
             </el-card>
@@ -52,8 +71,8 @@
     </div>
 </template>
   
-<script lang="ts">
-import { defineComponent, ref } from 'vue';
+<script lang="ts" setup>
+import { ref, reactive, onMounted } from 'vue';
 import {
     ElForm,
     ElFormItem,
@@ -69,135 +88,76 @@ interface User {
     address: string
 }
 
-export default defineComponent({
-    components: {
-        ElForm,
-        ElFormItem,
-        ElButton,
-        ElUpload,
-        ElCard,
-    },
-    setup() {
-        const form = ref({
-            audioFile: null,
-            subtitleFile: null,
-        });
+const form = reactive({
+    english: '',
+    chinese: '',
+    region: '',
+    date1: '',
+    date2: '',
+    delivery: false,
+    type: [],
+    resource: '',
+    desc: '',
+    currentId: '',
+    audioFile: null,
+    subtitleFile: null,
+    durationInSecond: 0,
+})
 
-        const rules = {
-            audioFile: [
-                { required: true, message: '请选择音频文件', trigger: 'change' },
-            ],
-            subtitleFile: [
-                { required: true, message: '请选择字幕文件', trigger: 'change' },
-            ],
-        };
+const textarea = ref('')
+const rules = {
+    audioFile: [
+        { required: true, message: '请选择音频文件', trigger: 'change' },
+    ],
+    subtitleFile: [
+        { required: true, message: '请选择字幕文件', trigger: 'change' },
+    ],
+};
 
-        const formRef = ref<any>(null);
+const formRef = ref<any>(null);
 
-        const handleAudioSuccess = (response: any) => {
-            form.audioFile = response.url;
-        };
+const handleAudioSuccess = (response: any) => {
+    form.audioFile = response.url;
+};
 
-        const handleSubtitleSuccess = (response: any) => {
-            form.subtitleFile = response.url;
-        };
+const handleSubtitleSuccess = (response: any) => {
+    form.subtitleFile = response.url;
+};
 
-        const handleUploadError = (err: any) => {
-            ElMessage.error('上传失败');
-            console.error(err);
-        };
+const handleUploadError = (err: any) => {
+    ElMessage.error('上传失败');
+    console.error(err);
+};
 
-        const submitForm = () => {
-            formRef.value.validate((valid: boolean) => {
-                if (valid) {
-                    ElMessage.success('上传成功');
-                } else {
-                    ElMessage.error('表单验证失败');
-                }
-            });
-        };
-
-        const tableRowClassName = ({
-            row,
-            rowIndex,
-        }: {
-            row: User
-            rowIndex: number
-        }) => {
-            if (rowIndex === 1) {
-                return 'warning-row'
-            } else if (rowIndex === 3) {
-                return 'success-row'
-            }
-            return ''
+const submitForm = () => {
+    formRef.value.validate((valid: boolean) => {
+        if (valid) {
+            ElMessage.success('上传成功');
+        } else {
+            ElMessage.error('表单验证失败');
         }
+    });
+};
 
-        const tableData: User[] = [
-            {
-                date: '2016-05-03',
-                name: 'Tom',
-                address: 'No. 189, Grove St, Los Angeles',
-            },
-            {
-                date: '2016-05-02',
-                name: 'Tom',
-                address: 'No. 189, Grove St, Los Angeles',
-            },
-            {
-                date: '2016-05-04',
-                name: 'Tom',
-                address: 'No. 189, Grove St, Los Angeles',
-            },
-            {
-                date: '2016-05-01',
-                name: 'Tom',
-                address: 'No. 189, Grove St, Los Angeles',
-            },
-            {
-                date: '2016-05-01',
-                name: 'Tom',
-                address: 'No. 189, Grove St, Los Angeles',
-            },
-            {
-                date: '2016-05-01',
-                name: 'Tom',
-                address: 'No. 189, Grove St, Los Angeles',
-            },
-            {
-                date: '2016-05-01',
-                name: 'Tom',
-                address: 'No. 189, Grove St, Los Angeles',
-            },
-            {
-                date: '2016-05-01',
-                name: 'Tom',
-                address: 'No. 189, Grove St, Los Angeles',
-            },
-            {
-                date: '2016-05-01',
-                name: 'Tom',
-                address: 'No. 189, Grove St, Los Angeles',
-            },
-            {
-                date: '2016-05-01',
-                name: 'Tom',
-                address: 'No. 189, Grove St, Los Angeles',
-            },
-        ]
+const tableRowClassName = ({
+    row,
+    rowIndex,
+}: {
+    row: User
+    rowIndex: number
+}) => {
+    if (rowIndex === 1) {
+        return 'warning-row'
+    } else if (rowIndex === 3) {
+        return 'success-row'
+    }
+    return ''
+}
 
-        return {
-            form,
-            rules,
-            formRef,
-            submitForm,
-            handleAudioSuccess,
-            handleSubtitleSuccess,
-            handleUploadError,
-            tableRowClassName,
-            tableData
-        };
-    },
+onMounted(async function () {
+
 });
+
 </script>
   
 <style scoped>
@@ -212,7 +172,7 @@ export default defineComponent({
         min-height: 25%;
 
         .header {
-            background-color: #007BFF;
+            background-color: darkseagreen;
             padding: 20px;
             text-align: center;
             color: #fff;
@@ -259,7 +219,7 @@ export default defineComponent({
         height: 65%;
 
         .header {
-            background-color: #007BFF;
+            background-color: darkseagreen;
             padding: 20px;
             text-align: center;
             color: #fff;
@@ -302,6 +262,16 @@ export default defineComponent({
         }
 
     }
+}
+
+.responsive-input {
+    width: 100%;
+    max-width: 600px;
+}
+
+.el-progress--line {
+    margin-bottom: 15px;
+    width: 350px;
 }
 </style>
   

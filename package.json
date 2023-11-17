@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@element-plus/icons-vue": "^2.1.0",
+    "@microsoft/signalr": "^8.0.0",
     "axios": "^1.5.1",
     "element-plus": "^2.3.14",
     "fast-glob": "^3.3.1",
