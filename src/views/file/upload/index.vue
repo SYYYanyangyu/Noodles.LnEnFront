@@ -1,14 +1,7 @@
 <script lang="ts" setup>
-import { ref, reactive, onMounted } from 'vue';
+import { ElForm, ElFormItem, ElButton, ElCard, ElMessage, type UploadInstance } from 'element-plus';
+import { ref, reactive } from 'vue';
 import CryptoJS from 'crypto-js';
-import {
-    ElForm,
-    ElFormItem,
-    ElButton,
-    ElUpload,
-    ElCard,
-    ElMessage,
-} from 'element-plus';
 import { reqFileExists, UploadAudio } from '@/api/listenadmin/upload';
 import type {
     FileExistsRequest, FileExistsResponse
@@ -18,13 +11,9 @@ const emit = defineEmits(["update:modelValue"]);
 interface Form {
     english: string;
     chinese: string;
-    region: string;
-    date1: string;
-    date2: string;
-    delivery: boolean;
+    audioUrl:string;
     type: string[];
     resource: string;
-    desc: string;
     currentId: string;
     audioFile: File | null;
     subtitleFile: File | null;
@@ -36,13 +25,9 @@ interface Form {
 const form = reactive<Form>({
     english: '',
     chinese: '',
-    region: '',
-    date1: '',
-    date2: '',
-    delivery: false,
+    audioUrl:'',
     type: [],
     resource: '',
-    desc: '',
     currentId: '',
     audioFile: null,
     subtitleFile: null,
@@ -55,7 +40,7 @@ const value = ref('')
 const textarea = ref('')
 const formRef = ref<any>(null);
 const fileName = ref('');
-const fileInput = ref(null);
+const uploadRef = ref<UploadInstance>()
 const rules = {
     audioFile: [
         { required: true, message: '请选择音频文件', trigger: 'change' },
@@ -93,62 +78,49 @@ const submitForm = () => {
     });
 };
 
-let fileExists = false;    // 初始化外部变量以存储文件是否存在的状态
-let fileUrl = '';          // 存储如果文件存在的话服务器返回的URL
-const beforeFileUpload = async () => {
-    debugger
-    const files = fileInput.value;
-        if (files.length <= 0) {
-          alert("没有选择文件");
-          return;
-        }
-        const file = files[0];
-        let fileReads = new FileReader();
-        //开始读取文件
-        fileReads.readAsArrayBuffer(file);
+const beforeFileUpload = async (file: File) => {
+    if (file.size <= 0) {
+        alert("没有选择文件");
+        return;
+    }
 
+    let fileReads = new FileReader();
+    //开始读取文件
+    fileReads.readAsArrayBuffer(file);
+    
     fileReads.onload = async function () {
         const wordArray = CryptoJS.lib.WordArray.create(fileReads.result);
         const hash = CryptoJS.SHA256(wordArray).toString();
         const fileSize = file.size;
         const fileExist: FileExistsRequest = { fileSize, sha256Hash: hash };
 
-        // 在这里将文件大小和哈希值的对象传入
-        // 进行解构并重命名内部的data
-        const { data: fileExistData } = await reqFileExists(fileExist);
-
-        if (fileExistData.isExists) {
-            emit('update:modelValue', fileExistData.url);
+        const result:FileExistsResponse = await reqFileExists(fileExist);
+        
+        if (result.isExists) {
+            emit('update:modelValue', result.url);
         }
-    }
 
+        // 上传
+        await startUpload(file)
+    }
     return false;
 };
-const submitUpload = async () => {
-    if (fileExists) {
-        // 文件已经在服务器上存在，可以直接使用 fileUrl
-        console.log('File already exists at', fileUrl);
-        // 这里可以添加你的逻辑来处理已经存在文件的情况        
-    } else {
-        const formData = new FormData();
-        formData.append("file", fileInput.value.files);
 
-        try {
-            const response = await UploadAudio(formData);
-            emit('update:modelValue', response);
-        } catch (error) {
-            alert("上传失败" + error);
-        }
-    }
-};
+const startUpload = async (file: File) => {
+    const formData = new FormData();
+    formData.append("file", file);
+    const remoteUrl = await UploadAudio(formData);
 
-const uploadWithEpisode = async () => {
-    // Your upload logic here
-};
+    console.log(remoteUrl)
 
-onMounted(async function () {
+    emit('update:modelValue', remoteUrl)
+}
 
-});
+const submitUpload = () => {
+    console.log("submitUpload")
+    uploadRef.value!.submit()
+    console.log("end submitUpload")
+}
 
 </script>
   
@@ -172,11 +144,15 @@ onMounted(async function () {
 
                         <el-form-item label="音频路径" prop="audioFile" class="form-item">
                             <div class="upload-section">
-                                <el-input v-model="form.english" disabled
+                                <el-input v-model="form.audioUrl" disabled
                                     placeholder="File path will be displayed here after uploading." class="path-input" />
-                                <el-upload class="upload" :auto-upload="false" :before-upload="beforeFileUpload"
-                                    ref="fileInput">
-                                    <div style="margin-top: 10px;;">
+                                <el-upload class="upload" 
+                                           ref="uploadRef"
+                                           action="#" 
+                                           :auto-upload="false"
+                                           :before-upload="beforeFileUpload"
+                                           :http-request="startUpload">
+                                    <div style="margin-top: 10px;">
                                         <el-button type="primary">选择文件</el-button>
                                     </div>
                                 </el-upload>

@@ -1,15 +1,13 @@
 // 判断上传的文件是否已经存在
 export interface FileExistsRequest {
-    fileSize:number
+    fileSize: number
     sha256Hash: string
 }
 
 //文件是否存在接口返回数据类型
-export interface FileExistsResponse extends Response {
-    data: {
-        isExists: boolean
-        url: string
-      }
+export interface FileExistsResponse {
+    isExists: boolean
+    url: string
 }
 
 export interface FileUpload {

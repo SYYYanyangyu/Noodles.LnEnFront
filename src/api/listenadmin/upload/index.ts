@@ -19,7 +19,7 @@ export const reqFileExists = (model: FileExistsRequest) =>
 
 // 文件不存在上传文件
 export const UploadAudio = (model: FormData) => {
-  request.post<any, string>(API.Upload_URL, model, {
+  request.post<any, any>(API.Upload_URL, model, {
     headers: { "Content-Type": "multipart/form-data" },
   })
 }
