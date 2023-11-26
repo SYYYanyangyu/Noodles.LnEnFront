@@ -18,8 +18,8 @@ export const reqFileExists = (model: FileExistsRequest) =>
   request.get<any, FileExistsResponse>(`${API.FileExists_URL}?fileSize=${model.fileSize}&sha256Hash=${model.sha256Hash}`)
 
 // 文件不存在上传文件
-export const UploadAudio = (model: FormData) => {
-  request.post<any, any>(API.Upload_URL, model, {
+export const UploadAudio = (model: FormData): Promise<string> =>
+  request.post<any, string>(API.Upload_URL, model, {
     headers: { "Content-Type": "multipart/form-data" },
-  })
-}
+  });
+

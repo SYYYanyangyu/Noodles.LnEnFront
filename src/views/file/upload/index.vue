@@ -1,218 +1,127 @@
-<script lang="ts" setup>
-import { ElForm, ElFormItem, ElButton, ElCard, ElMessage, type UploadInstance } from 'element-plus';
+<script lang="ts">
+import { ElForm, ElFormItem, ElButton, ElCard, ElMessage } from 'element-plus';
 import { ref, reactive } from 'vue';
-import CryptoJS from 'crypto-js';
-import { reqFileExists, UploadAudio } from '@/api/listenadmin/upload';
+// interface and ts type
+import { reqAdd } from '@/api/listenadmin/episode';
 import type {
-    FileExistsRequest, FileExistsResponse
-} from "@/api/listenadmin/upload/type";
+    EposideAddRequest
+} from "@/api/listenadmin/episode/type";
 
-const emit = defineEmits(["update:modelValue"]);
-interface Form {
-    english: string;
-    chinese: string;
-    audioUrl:string;
-    type: string[];
-    resource: string;
-    currentId: string;
-    audioFile: File | null;
-    subtitleFile: File | null;
-    durationInSecond: number;
-    status: string;
-    percentage: number
-}
+//compnent
+import UploadComponent from '@/components/Upload/inde.vue';
 
-const form = reactive<Form>({
-    english: '',
-    chinese: '',
-    audioUrl:'',
-    type: [],
-    resource: '',
-    currentId: '',
-    audioFile: null,
-    subtitleFile: null,
-    durationInSecond: 0,
-    status: 'warning',
-    percentage: 0
-});
-
-const value = ref('')
-const textarea = ref('')
-const formRef = ref<any>(null);
-const fileName = ref('');
-const uploadRef = ref<UploadInstance>()
-const rules = {
-    audioFile: [
-        { required: true, message: '请选择音频文件', trigger: 'change' },
-    ],
-    subtitleFile: [
-        { required: true, message: '请选择字幕文件', trigger: 'change' },
-    ],
-};
-const options = [
-    {
-        value: 'srt',
-        label: 'srt',
+export default {
+    components: {
+        UploadComponent,
     },
-    {
-        value: 'vtt',
-        label: 'vtt',
+    props: {
+        modelValue: String,
     },
-    {
-        value: 'lrc',
-        label: 'lrc',
-    },
-    {
-        value: 'json',
-        label: 'json',
-    }
-]
+    emits: ['update:modelValue'],
+    setup(props, { emit }) {
+        const form = reactive({
+            name: {
+                chinese: '',
+                english: '',
+            },
+            audioUrl: props.modelValue || '',
+            durationInSecond: 0,
+            subtitle: '',
+            subtitleType: '',
+        });
 
-const submitForm = () => {
-    formRef.value.validate((valid: boolean) => {
-        if (valid) {
-            ElMessage.success('上传成功');
-        } else {
-            ElMessage.error('表单验证失败');
-        }
-    });
-};
+        const value = ref('');
 
-const beforeFileUpload = async (file: File) => {
-    if (file.size <= 0) {
-        alert("没有选择文件");
-        return;
-    }
-
-    let fileReads = new FileReader();
-    //开始读取文件
-    fileReads.readAsArrayBuffer(file);
-    
-    fileReads.onload = async function () {
-        const wordArray = CryptoJS.lib.WordArray.create(fileReads.result);
-        const hash = CryptoJS.SHA256(wordArray).toString();
-        const fileSize = file.size;
-        const fileExist: FileExistsRequest = { fileSize, sha256Hash: hash };
-
-        const result:FileExistsResponse = await reqFileExists(fileExist);
+        const textarea = ref('');
         
-        if (result.isExists) {
-            emit('update:modelValue', result.url);
-        }
+        const rules = {
+            'name.chinese': [{ required: true, message: '请输入中文名称', trigger: 'blur' }],
+            'name.english': [{ required: true, message: '请输入英文名称', trigger: 'blur' }],
+            'audioUrl': [{ required: true, message: '请选择音频文件', trigger: 'change' }],
+            'durationInSecond': [{ required: true, message: '请输入音频时长', trigger: 'blur' }],
+            'subtitle': [{ required: true, message: '请输入字幕内容', trigger: 'blur' }],
+            'subtitleType': [{ required: true, message: '请输入字幕类型', trigger: 'blur' }],
+        };
 
-        // 上传
-        await startUpload(file)
-    }
-    return false;
+        const options = [
+            { value: 'srt', label: 'srt' },
+            { value: 'vtt', label: 'vtt' },
+            { value: 'lrc', label: 'lrc' },
+            { value: 'json', label: 'json' },
+        ];
+
+        const submitForm = async () => {
+            try {
+                // 处理表单提交逻辑
+                const response = await reqAdd(form as EposideAddRequest);
+
+                if (response) {
+                    ElMessage.success("添加成功");
+                    // 这里可以进行其他成功处理逻辑
+                } else {
+                    ElMessage.error("添加失败");
+                    // 这里可以进行其他失败处理逻辑
+                }
+            } catch (error) {
+                console.error('Error submitting form:', error);
+                ElMessage.error('表单提交失败');
+            }
+        };
+
+        return {
+            form,
+            value,
+            textarea,
+            rules,
+            options,
+            submitForm,
+        };
+    },
 };
-
-const startUpload = async (file: File) => {
-    const formData = new FormData();
-    formData.append("file", file);
-    const remoteUrl = await UploadAudio(formData);
-
-    console.log(remoteUrl)
-
-    emit('update:modelValue', remoteUrl)
-}
-
-const submitUpload = () => {
-    console.log("submitUpload")
-    uploadRef.value!.submit()
-    console.log("end submitUpload")
-}
-
 </script>
   
-
 <template>
-    <div>
-        <div class="upload-container">
-            <el-card class="upload-card">
-                <div class="header">
-                    <h1>音频和字幕上传</h1>
-                </div>
-                <div class="upload-form">
-                    <el-form :model="form" :rules="rules" ref="formRef" label-width="120px">
-                        <el-form-item label="中文名称">
-                            <el-input v-model="form.chinese" class="responsive-input" />
-                        </el-form-item>
+    <div class="upload-container">
+        <el-card class="upload-card">
+            <div class="header">
+                <h1>音频和字幕上传</h1>
+            </div>
+            <div class="upload-form">
+                <el-form :model="form" :rules="rules" ref="formRef" label-width="120px">
+                    <el-form-item label="中文名称">
+                        <el-input v-model="form.name.chinese" class="responsive-input" />
+                    </el-form-item>
 
-                        <el-form-item label="英文名称">
-                            <el-input v-model="form.english" class="responsive-input" />
-                        </el-form-item>
+                    <el-form-item label="英文名称">
+                        <el-input v-model="form.name.english" class="responsive-input" />
+                    </el-form-item>
 
-                        <el-form-item label="音频路径" prop="audioFile" class="form-item">
-                            <div class="upload-section">
-                                <el-input v-model="form.audioUrl" disabled
-                                    placeholder="File path will be displayed here after uploading." class="path-input" />
-                                <el-upload class="upload" 
-                                           ref="uploadRef"
-                                           action="#" 
-                                           :auto-upload="false"
-                                           :before-upload="beforeFileUpload"
-                                           :http-request="startUpload">
-                                    <div style="margin-top: 10px;">
-                                        <el-button type="primary">选择文件</el-button>
-                                    </div>
-                                </el-upload>
+                    <upload-component v-model="form.audioUrl" />
 
-                                <el-button @click="submitUpload" class="upload-button">上传</el-button>
+                    <el-form-item label="音频时长">
+                        <el-input v-model="form.durationInSecond" disabled class="responsive-input" />
+                    </el-form-item>
 
-                            </div>
-                            <span class="file-name">{{ fileName }}</span>
+                    <el-form-item label="字幕类型">
+                        <el-select v-model="value" class="m-2" placeholder="请选择字幕类型" size="large">
+                            <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value" />
+                        </el-select>
+                    </el-form-item>
 
-                            <el-progress :percentage="form.percentage" :status="form.status" class="upload-progress" />
-                        </el-form-item>
+                    <el-form-item label="字幕文件" prop="subtitleFile">
+                        <el-input v-model="textarea" :rows="5" type="textarea" placeholder="请输入字幕文件"
+                            class="responsive-input" />
+                    </el-form-item>
 
-                        <el-form-item label="音频时长">
-                            <el-input v-model="form.durationInSecond" disabled class="responsive-input" />
-                        </el-form-item>
-
-                        <el-form-item label="字幕类型">
-                            <el-select v-model="value" class="m-2" placeholder="请选择字幕类型" size="large">
-                                <el-option v-for="item in options" :key="item.value" :label="item.label"
-                                    :value="item.value" />
-                            </el-select>
-                        </el-form-item>
-
-                        <el-form-item label="字幕文件" prop="subtitleFile">
-                            <el-input v-model="textarea" :rows="5" type="textarea" placeholder="请输入字幕文件"
-                                class="responsive-input" />
-                        </el-form-item>
-
-                        <el-form-item>
-                            <el-button type="primary" @click="submitForm">上传</el-button>
-                        </el-form-item>
-
-                    </el-form>
-                </div>
-            </el-card>
-        </div>
-
-        <div class="upload—status">
-            <el-card class="status-card">
-                <div class="header">
-                    <h1>上传状态</h1>
-                </div>
-
-                <div class="upload-table">
-                    <el-table :data="tableData" style="width: 100%" :row-class-name="tableRowClassName">
-                        <el-table-column prop="date" label="Date" width="180" />
-                        <el-table-column prop="name" label="Name" width="180" />
-                        <el-table-column prop="address" label="Address" />
-                    </el-table>
-                </div>
-
-                <div class="upload-pagenation">
-                    <el-pagination small background layout="prev, pager, next" :total="50" class="mt-4" />
-                </div>
-            </el-card>
-        </div>
-
+                    <el-form-item>
+                        <el-button type="primary" @click="submitForm">添加</el-button>
+                    </el-form-item>
+                </el-form>
+            </div>
+        </el-card>
     </div>
 </template>
-  
+
 <style scoped lang="scss">
 .upload-container {
     display: flex;
@@ -316,17 +225,11 @@ const submitUpload = () => {
 
     }
 }
-
 .responsive-input {
     width: 100%;
     max-width: 600px;
 }
 
-.el-progress--line {
-    margin-bottom: 15px;
-    width: 350px;
-    padding: 5px
-}
 
 .form-item {
     display: flex;
@@ -346,25 +249,6 @@ const submitUpload = () => {
 .upload-progress {
     margin: 0 20px;
     /* 在两侧添加一些间距 */
-}
-
-.upload-section {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    border: 1px solid #eee;
-    /* 添加边框 */
-    padding: 10px;
-    /* 添加内间距 */
-    border-radius: 5px;
-    /* 添加边框圆角 */
-}
-
-.upload .el-button {
-    padding: 12px 20px;
-    /* 调整按钮的 padding 以改变其高度 */
-    line-height: 1.2;
-    /* 调整 line-height 以改变文字高度 */
 }
 </style>
   

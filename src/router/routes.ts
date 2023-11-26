@@ -194,7 +194,7 @@ export const constantRoute = [
         children: [
             {
                 path: '/file/management',
-                component: () => import('@/views/file/management/index.vue'),
+                component: () => import('@/views/listenadmin/episode/index.vue'),
                 name: "Manage",
                 meta: {
                     title: '文件预览',
