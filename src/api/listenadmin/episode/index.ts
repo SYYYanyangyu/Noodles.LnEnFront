@@ -2,7 +2,7 @@
 import request from '@/utils/request'
 
 import type {
-EposideAddRequest,
+  EposideAddRequest,
   CategoryAddResponse,
   CategoryResponse
 } from './type'
