@@ -1,31 +1,47 @@
 <script setup lang="ts">
 
 import { ElNotification, ElMessageBox } from 'element-plus';
-import { reqAdd, reqblumList, reqEdit, reqDelete, reqFind } from '@/api/listenadmin/ablum';
+import { reqAdd, reqEncodeList, reqEdit, reqDelete, reqList } from '@/api/listenadmin/episode/index';
 import { useRouter, useRoute } from 'vue-router';
-import type { AlbumListResponse, AlbumAddRequest } from "@/api/listenadmin/ablum/type";
+import type { EncodeReponse, EpisodeResponse } from "@/api/listenadmin/episode/type";
 import { reactive, ref, onMounted } from 'vue'
 //获取路由器
 let $router = useRouter();
 //路由对象
 let $route = useRoute();
+
 const dialogTitle = ref('添加');
 const dialogFormVisible = ref(false)
-const tableData = ref<AlbumListResponse[]>([]); // 使用 ref 函数定义一个响应式的变量
-const formLabelWidth = '140px'
+const tableData = ref<EpisodeResponse[]>([]); // 使用 ref 函数定义一个响应式的变量
+const tableEncodeData = ref<EncodeReponse[]>([]); // 使用 ref 函数定义一个响应式的变量
+const currenId = $route.query.id as string;
+
 const form = reactive({
     english: '',
     chinese: '',
-    region: '',
-    date1: '',
-    date2: '',
-    delivery: false,
     type: [],
     resource: '',
     desc: '',
     currentId: '',
-    categoryId: $route.params.categorgId as string
+    categoryId: $route.query.categorgId as string
 })
+
+onMounted(async () => {
+    const albumId = $route.query.id as string;
+    await getEpsodeList(albumId);
+    await getEncodeList(albumId)
+});
+
+const currentPage = ref(1);
+const pageSize = ref(10);
+
+function handleSizeChange(val: number) {
+    pageSize.value = val;
+}
+
+function handleCurrentChange(val: number) {
+    currentPage.value = val;
+}
 
 const addform = reactive({
     name: {
@@ -35,26 +51,25 @@ const addform = reactive({
     categoryId: $route.params.categorgId as string
 });
 
-onMounted(async () => {
-    const categorgId = $route.params.categorgId as string;
-    await getAblumList(categorgId);
-});
-
-const getAblumList = async (categorgId: string) => {
-    let result: AlbumListResponse[] = await reqblumList(categorgId)
+const getEpsodeList = async (albumId: string) => {
+    let result: EpisodeResponse[] = await reqList(albumId)
     tableData.value = result;
 }
 
-const formatEpisodeChineseName = (row: AlbumListResponse) => {
+const getEncodeList = async (albumId: string) => {
+    let result: EncodeReponse[] = await reqEncodeList(albumId)
+    tableEncodeData.value = result;
+}
+
+const formatEpisodeChineseName = (row: EpisodeResponse) => {
     return row.name.chinese; // 从对象的属性中获取需要渲染的值，例如这里返回 name 的 chinese 属性值
 };
 
-const formatEpisodeEnglishName = (row: AlbumListResponse) => {
+const formatEpisodeEnglishName = (row: EpisodeResponse) => {
     return row.name.english; // 从对象的属性中获取需要渲染的值，例如这里返回 name 的 chinese 属性值
 };
 
-
-const editAlbum = async () => {
+const editEpisode = async () => {
     addform.name.english = form.english;
     addform.name.chinese = form.chinese;
     let titlevalue = dialogTitle.value;
@@ -70,19 +85,19 @@ const editAlbum = async () => {
         message: `${titlevalue}完成`,
     });
 
-    await getAblumList(form.categoryId);
+    await getEpsodeList(form.categoryId);
 }
 
-const handleEdit = async (row: AlbumListResponse) => {
+const handleEdit = async (row: EpisodeResponse) => {
     dialogFormVisible.value = true;
     dialogTitle.value = "修改"
-    let ablum: AlbumListResponse = await reqFind(row.id)
-    form.english = ablum.name.english;
-    form.chinese = ablum.name.chinese;
+    let album: AlbumListResponse = await reqFind(row.id)
+    form.english = album.name.english;
+    form.chinese = album.name.chinese;
     form.currentId = row.id;
 }
 
-const handleDelete = async (row: AlbumListResponse) => {
+const handleDelete = async (row: EpisodeResponse) => {
     ElMessageBox.confirm('Are you sure to close this dialog?')
         .then(async () => {
             await reqDelete(row.id);
@@ -91,103 +106,117 @@ const handleDelete = async (row: AlbumListResponse) => {
                 message: `删除完成`,
             });
 
-            await getAblumList(form.categoryId);
+            await getalbumList(form.categoryId);
         })
         .catch(() => {
             // catch error
         })
 }
 
-const handleEpisode = async (row: AlbumListResponse) => {
-    $router.push({ path: `/listenadmin/ablum${row.id}` })  // 使用 id 进行路由跳转  
+const handleEpisode = async (row: EpisodeResponse) => {
+    $router.push({ path: `/listenadmin/album/${row.id}` })  // 使用 id 进行路由跳转  
+}
+const handleUpload = async () => {
+    // 在组件中使用router.push()跳转到带有参数的路由
+    $router.push({ path: '/file/upload', query: { id: currenId } })
 }
 
 </script>
 
 <template>
-    <div class="listentype_container">
-        <el-row>
-            <el-col :span="24">
-                <el-card class="button-card">
-                    <template #header>
-                        <div class="card-header">
-                            <span>分类管理</span>
-                            <el-row class="mb-4">
-                                <el-button type="primary" @click="dialogFormVisible = true">添加</el-button>
-                                <el-button type="primary">排序</el-button>
-                            </el-row>
-                        </div>
+    <div class="transcode-page">
+
+        <el-card class="custom-card">
+            <div class="custom-card-content">
+                <el-button type="primary" @click="handleUpload()">添加</el-button>
+                <el-button type="primary">排序</el-button>
+            </div>
+        </el-card>
+
+        <el-card class="transcode-card">
+            <h2 class="table-title">转码过程</h2>
+            <el-table :data="tableEncodeData" class="transcode-table" :cell-style="{ backgroundColor: '#FFCCCC' }">
+
+                <el-table-column prop="name" label="中文标题" :formatter="formatEpisodeChineseName">
+                    <template v-slot:default="{ row }">
+                        <span :class="row.isVisible === false ? 'strike' : ''">{{
+                            formatEpisodeChineseName(row) }}</span>
                     </template>
-                </el-card>
-            </el-col>
-            <el-col :span="24">
-                <el-card class="table-card">
-                    <div class="type-table">
-                        <el-table :data="tableData" style="width: 100%">
-                            <el-table-column prop="name" label="中文标题" :formatter="formatEpisodeChineseName">
-                                <template v-slot:default="{ row }">
-                                    <span :class="row.isVisible === false ? 'strike' : ''">{{
-                                        formatEpisodeChineseName(row) }}</span>
-                                </template>
-                            </el-table-column>
-                            <el-table-column prop="name" label="英文标题" :formatter="formatEpisodeEnglishName">
-                                <template v-slot:default="{ row }">
-                                    <span :class="row.isVisible === false ? 'strike' : ''">{{
-                                        formatEpisodeEnglishName(row) }}</span>
-                                </template>
-                            </el-table-column>
-                            <el-table-column prop="creationTime" label="创建时间">
-                                <template v-slot:default="{ row }">
-                                    <span :class="row.isVisible === false ? 'strike' : ''">{{ row.creationTime }}</span>
-                                </template>
-                            </el-table-column>
-                            <el-table-column label="操作">
-                                <template #default="scope">
-                                    <el-button size="small" type="danger" @click="handleDelete(scope.row)">删除</el-button>
-                                    <el-button size="small" @click="handleEdit(scope.row)">修改</el-button>
-                                    <el-button size="small" type="primary" @click="handleEdit(scope.row)">显示音频</el-button>
-                                    <el-button size="small" type="primary"
-                                        @click="handleEpisode(scope.row)">管理专辑</el-button>
-                                </template>
-                            </el-table-column>
-                        </el-table>
-                    </div>
+                </el-table-column>
 
-                    <div class="type-pagenation">
-                        <el-pagination small background layout="prev, pager, next" :total="50" class="mt-4" />
-                    </div>
-                </el-card>
-            </el-col>
-        </el-row>
-    </div>
+                <el-table-column prop="name" label="英文标题" :formatter="formatEpisodeEnglishName">
+                    <template v-slot:default="{ row }">
+                        <span :class="row.isVisible === false ? 'strike' : ''">{{
+                            formatEpisodeEnglishName(row) }}</span>
+                    </template>
+                </el-table-column>
 
-    <div class="type_modal">
-        <el-dialog v-model="dialogFormVisible" :title="dialogTitle">
-            <el-form :model="form">
+                <el-table-column prop="creationTime" label="创建时间">
+                    <template v-slot:default="{ row }">
+                        <span :class="row.isVisible === false ? 'strike' : ''">{{ row.creationTime }}</span>
+                    </template>
+                </el-table-column>
 
-                <el-form-item label="english title" :label-width="formLabelWidth">
-                    <el-input v-model="form.english" autocomplete="off" />
-                </el-form-item>
+                <el-table-column prop="durationInSecond" width="60px" label="秒数"></el-table-column>
 
-                <el-form-item label="chinese title" :label-width="formLabelWidth">
-                    <el-input v-model="form.chinese" autocomplete="off" />
-                </el-form-item>
+            </el-table>
 
-            </el-form>
-            <template #footer>
-                <span class="dialog-footer">
-                    <el-button @click="dialogFormVisible = false">取消</el-button>
-                    <el-button type="primary" @click="editAlbum">
-                        确认
-                    </el-button>
-                </span>
-            </template>
-        </el-dialog>
+            <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange"
+                :current-page.sync="currentPage" :page-sizes="[10, 20, 30, 40]" :page-size="pageSize"
+                layout="total, sizes, prev, pager, next, jumper" :total="100">
+            </el-pagination>
+        </el-card>
+
+        <el-card class="transcode-card">
+            <h2 class="table-title">转码结果</h2>
+            <el-table :data="tableData" class="transcode-table" :cell-style="{ backgroundColor: '#CCFFCC' }">
+
+                <el-table-column prop="name" label="中文标题" :formatter="formatEpisodeChineseName">
+                    <template v-slot:default="{ row }">
+                        <span :class="row.isVisible === false ? 'strike' : ''">{{
+                            formatEpisodeChineseName(row) }}</span>
+                    </template>
+                </el-table-column>
+
+                <el-table-column prop="name" label="英文标题" :formatter="formatEpisodeEnglishName">
+                    <template v-slot:default="{ row }">
+                        <span :class="row.isVisible === false ? 'strike' : ''">{{
+                            formatEpisodeEnglishName(row) }}</span>
+                    </template>
+                </el-table-column>
+
+                <el-table-column prop="durationInSecond" width="60px" label="秒数"></el-table-column>
+
+                <el-table-column prop="creationTime" label="创建时间" />
+
+                <el-table-column label="操作" width="250" align="right">
+                    <template #default="scope">
+                        <el-button size="small" type="danger" @click="handleDelete(scope.row)">删除</el-button>
+                        <el-button size="small" @click="handleEdit(scope.row)">修改</el-button>
+                        <el-button size="small" type="primary" @click="handleEpisode(scope.row)">隐藏</el-button>
+                    </template>
+                </el-table-column>
+
+            </el-table>
+            <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange"
+                :current-page.sync="currentPage" :page-sizes="[10, 20, 30, 40]" :page-size="pageSize"
+                layout="total, sizes, prev, pager, next, jumper" :total="100">
+            </el-pagination>
+        </el-card>
     </div>
 </template>
 
 
 <style scoped lang="scss">
+.custom-card {
+    margin-bottom: 20px;
+    padding: 20px;
+}
+
+.custom-card-content {
+    justify-content: space-between;
+}
+
 .button-card {
     width: "95%";
 
@@ -250,5 +279,9 @@ const handleEpisode = async (row: AlbumListResponse) => {
 
 .strike {
     text-decoration: line-through;
+}
+
+.transcode-card+.transcode-card {
+    margin-top: 20px;
 }
 </style>

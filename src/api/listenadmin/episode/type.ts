@@ -1,6 +1,6 @@
 // 添加听力剧集
-export interface EposideAddRequest {
-    categoryId: string;
+export interface EpisodeAddRequest {
+    albumId: string;
     name: Name;
     audioUrl: string;
     durationInSecond: number;
@@ -8,49 +8,43 @@ export interface EposideAddRequest {
     subtitleType: string;
 }
 
-// 添加听力剧集
+// 听力剧集接口返回数据类型
 export interface Name {
     chinese: string;
     english: string;
-}
-// 听力剧集接口返回数据类型
-export interface EposideAddResponse extends Response {
-    guid: string;
-}
-
-export interface EposideResponse extends Response {
+  }
+  
+  // 解码成功
+  export interface EpisodeResponse {
     id: string;
-    categoryId: string;
     isDeleted: boolean;
     creationTime: string;
     deletionTime: string;
     lastModificationTime: string;
     sequenceNumber: number;
     name: Name;
+    albumId: string;
     audioUrl: string;
     durationInSecond: number;
     subtitle: string;
     subtitleType: string;
-}
+    isVisible: boolean;
+  }
 
-// 听力剧集接口返回数据类型
-export interface EposideAddResponse extends Response {
-    guid: string;
-}
-
-export interface EposideResponse extends Response {
+  // 解码失败
+  export interface EncodeReponse {
     id: string;
-    categoryId: string;
-    isDeleted: boolean;
-    creationTime: string;
-    deletionTime: string;
-    lastModificationTime: string;
-    sequenceNumber: number;
     name: Name;
-    audioUrl: string;
+    albumId: string;
     durationInSecond: number;
     subtitle: string;
     subtitleType: string;
-}
+    status: string;
+  }
 
-// 假设 Name 接口和 Response 接口已经在之前定义
+  // 修改
+  export interface EditRequest {
+    name: Name;
+    subtitleType: string;
+    subtitle: string;
+  }

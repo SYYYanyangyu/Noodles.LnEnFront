@@ -163,9 +163,9 @@ export const constantRoute = [
                 }
             },
             {
-                path: '/listenadmin/ablum:categorgId',
-                component: () => import('@/views/listenadmin/ablum/index.vue'),
-                name: "ablum",
+                path: '/listenadmin/album',
+                component: () => import('@/views/listenadmin/album/index.vue'),
+                name: "album",
                 meta: {
                     title: '专辑管理',
                     icon: 'Flag',
