@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { reactive, ref, onMounted } from 'vue';
-import { useRouter, useRoute } from 'vue-router';
+import { useRouter } from 'vue-router';
 import { ElNotification, ElMessageBox } from 'element-plus';
 import { reqAdd, reqCategoryList, reqEdit, reqDelete, reqFind } from '@/api/listenadmin/category';
 import type {
