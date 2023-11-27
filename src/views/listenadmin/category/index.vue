@@ -9,8 +9,6 @@ import type {
 
 //获取路由器
 let $router = useRouter();
-//路由对象
-let $route = useRoute();
 
 const dialogFormVisible = ref(false)
 const dialogTitle = ref('添加');
@@ -114,8 +112,8 @@ const handleDelete = async (row: CategoryResponse) => {
         })
 }
 
-const handleAblum = async (row: CategoryResponse) => {
-    $router.push({ path: `/listenadmin/ablum${row.id }`})  // 使用 id 进行路由跳转  
+const handlealbum = async (row: CategoryResponse) => {
+    $router.push({ path: '/listenadmin/album', query: { id: row.id } }) // 使用 id 进行路由跳转  
 }
 
 </script>
@@ -152,7 +150,7 @@ const handleAblum = async (row: CategoryResponse) => {
                                 <template #default="scope">
                                     <el-button size="small" @click="handleEdit(scope.row)">修改</el-button>
                                     <el-button size="small" type="danger" @click="handleDelete(scope.row)">删除</el-button>
-                                    <el-button size="small" type="primary" @click="handleAblum(scope.row)">管理专辑</el-button>
+                                    <el-button size="small" type="primary" @click="handlealbum(scope.row)">管理专辑</el-button>
                                 </template>
                             </el-table-column>
                         </el-table>
@@ -182,7 +180,6 @@ const handleAblum = async (row: CategoryResponse) => {
                     <el-input v-model="form.coverUrl" autocomplete="off" />
                 </el-form-item>
 
-                <!-- action="https://run.mocky.io/v3/9d059bf9-4660-45f2-925d-ce80ad6c4d15"  -->
                 <el-upload v-model:file-list="fileList" class="upload-demo"
                     action="http://localhost/FileService/Uploader/UploadImages" :on-preview="handlePreview"
                     :on-remove="handleRemove" :auto-upload="true" list-type="picture">
@@ -195,6 +192,7 @@ const handleAblum = async (row: CategoryResponse) => {
                 </el-upload>
 
             </el-form>
+
             <template #footer>
                 <span class="dialog-footer">
                     <el-button @click="dialogFormVisible = false">取消</el-button>
@@ -203,6 +201,7 @@ const handleAblum = async (row: CategoryResponse) => {
                     </el-button>
                 </span>
             </template>
+            
         </el-dialog>
     </div>
 </template>

@@ -1,13 +1,12 @@
 <script lang="ts">
 import { ElForm, ElFormItem, ElButton, ElCard, ElMessage } from 'element-plus';
 import { ref, reactive } from 'vue';
+import { useRoute } from 'vue-router';
 // interface and ts type
 import { reqAdd } from '@/api/listenadmin/episode';
-import type {
-    EposideAddRequest
-} from "@/api/listenadmin/episode/type";
+import type { EpisodeAddRequest } from "@/api/listenadmin/episode/type";
 
-//compnent
+//component
 import UploadComponent from '@/components/Upload/inde.vue';
 
 export default {
@@ -19,13 +18,17 @@ export default {
     },
     emits: ['update:modelValue'],
     setup(props, { emit }) {
+        //路由对象
+        let $route = useRoute();
+
         const form = reactive({
+            albumId: $route.query.id as string,
             name: {
                 chinese: '',
                 english: '',
             },
             audioUrl: props.modelValue || '',
-            durationInSecond: 0,
+            audioSecond: 0,
             subtitle: '',
             subtitleType: '',
         });
@@ -33,7 +36,27 @@ export default {
         const value = ref('');
 
         const textarea = ref('');
-        
+
+        const submitForm = async () => {
+            try {
+                const response = await reqAdd(form as EpisodeAddRequest);
+                if (response) {
+                    ElMessage.success("添加成功");
+                    // 这里可以进行其他成功处理逻辑
+                } else {
+                    ElMessage.error("添加失败");
+                    // 这里可以进行其他失败处理逻辑
+                }
+            } catch (error) {
+                console.error('Error submitting form:', error);
+                ElMessage.error('表单提交失败');
+            }
+        };
+
+        const audioSecond = (msg:number) => {
+           form.audioSecond = msg
+        }
+
         const rules = {
             'name.chinese': [{ required: true, message: '请输入中文名称', trigger: 'blur' }],
             'name.english': [{ required: true, message: '请输入英文名称', trigger: 'blur' }],
@@ -50,24 +73,6 @@ export default {
             { value: 'json', label: 'json' },
         ];
 
-        const submitForm = async () => {
-            try {
-                // 处理表单提交逻辑
-                const response = await reqAdd(form as EposideAddRequest);
-
-                if (response) {
-                    ElMessage.success("添加成功");
-                    // 这里可以进行其他成功处理逻辑
-                } else {
-                    ElMessage.error("添加失败");
-                    // 这里可以进行其他失败处理逻辑
-                }
-            } catch (error) {
-                console.error('Error submitting form:', error);
-                ElMessage.error('表单提交失败');
-            }
-        };
-
         return {
             form,
             value,
@@ -75,6 +80,7 @@ export default {
             rules,
             options,
             submitForm,
+            audioSecond
         };
     },
 };
@@ -96,10 +102,11 @@ export default {
                         <el-input v-model="form.name.english" class="responsive-input" />
                     </el-form-item>
 
-                    <upload-component v-model="form.audioUrl" />
+                    <!-- <upload-component v-model="form.audioUrl" /> -->
+                    <upload-component v-model="form.audioUrl" @audio-Second = "audioSecond"/>
 
                     <el-form-item label="音频时长">
-                        <el-input v-model="form.durationInSecond" disabled class="responsive-input" />
+                        <el-input v-model="form.audioSecond" disabled class="responsive-input" />
                     </el-form-item>
 
                     <el-form-item label="字幕类型">
@@ -225,6 +232,7 @@ export default {
 
     }
 }
+
 .responsive-input {
     width: 100%;
     max-width: 600px;

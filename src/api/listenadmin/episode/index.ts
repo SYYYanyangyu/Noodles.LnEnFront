@@ -2,36 +2,38 @@
 import request from '@/utils/request'
 
 import type {
-  EposideAddRequest,
-  CategoryAddResponse,
-  CategoryResponse
+  EpisodeAddRequest,
+  EpisodeResponse,
+  EncodeReponse,
+  EditRequest
 } from './type'
 
 
 enum API {
-  EpisodeAdd_URL = '/Listening.Admin//Episode/Add',
-  CategoryEdit_URL = '/Listening.Admin/Category/Update/',
-  CategoryDelete_URL = '/Listening.Admin/Category/DeleteById/',
-  CategoryFind_URL = '/Listening.Admin/Category/FindById/',
-  CategoryList_URL = '/Listening.Admin/Category/FindAll',
+  EpisodeAdd_URL = '/Listening.Admin/Episode/Add',
+  EpisodeList_URL = '/Listening.Admin/Episode/FindByalbumId/',
+  EncodeList_URL = '/Listening.Admin/Episode/FindEncodingEpisodesByalbumId/',
+  EpisodeEdit_URL = '/Listening.Admin/Episode/Update/',
+  EpisodeDelete_URL = '/Listening.Admin//Episode/DeleteById/',
 }
 
 // 添加
-export const reqAdd = (data: EposideAddRequest) =>
+export const reqAdd = (data: EpisodeAddRequest) =>
   request.post<any, String>(API.EpisodeAdd_URL, data)
 
 // 修改
-export const reqEdit = (CategoryId: string,data:CategoryAddRequest) =>
-  request.put<any, CategoryAddResponse>(`${API.CategoryEdit_URL}${CategoryId}`,data)
+export const reqEdit = (id: string, data: EditRequest) =>
+  request.put<any, EditRequest>(`${API.EpisodeEdit_URL}${id}`, data)
 
 // 删除
-export const reqDelete = (CategoryId: string) =>
-  request.delete<any, CategoryAddResponse>(`${API.CategoryDelete_URL}${CategoryId}`)
+export const reqDelete = (id: string) =>
+  request.delete<any, any[]>(`${API.EpisodeDelete_URL}${id}`)
 
-// 查找
-export const reqFind = (CategoryId: string) =>
-  request.get<any, CategoryResponse>(`${API.CategoryFind_URL}${CategoryId}`)
+// 查询解码成功
+export const reqList = (albumId: string,) =>
+  request.get<any, EpisodeAddRequest[]>(`${API.EpisodeList_URL}${albumId}`)
 
-// 目录
-export const reqCategoryList = () =>
-  request.get<any, CategoryResponse[]>(API.CategoryList_URL)
+// 查询解码失败
+export const reqEncodeList = (albumId: string) =>
+  request.get<any, EncodeReponse[]>(`${API.EncodeList_URL}${albumId}`)
+

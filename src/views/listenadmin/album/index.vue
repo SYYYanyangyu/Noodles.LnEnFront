@@ -1,9 +1,9 @@
 <script setup lang="ts">
 
 import { ElNotification, ElMessageBox } from 'element-plus';
-import { reqAdd, reqblumList, reqEdit, reqDelete, reqFind } from '@/api/listenadmin/ablum';
+import { reqAdd, reqblumList, reqEdit, reqDelete, reqFind } from '@/api/listenadmin/album';
 import { useRouter, useRoute } from 'vue-router';
-import type { AlbumListResponse, AlbumAddRequest } from "@/api/listenadmin/ablum/type";
+import type { AlbumListResponse } from "@/api/listenadmin/album/type";
 import { reactive, ref, onMounted } from 'vue'
 //获取路由器
 let $router = useRouter();
@@ -24,7 +24,7 @@ const form = reactive({
     resource: '',
     desc: '',
     currentId: '',
-    categoryId: $route.params.categorgId as string
+    categoryId: $route.query.id as string
 })
 
 const addform = reactive({
@@ -32,15 +32,15 @@ const addform = reactive({
         english: '',
         chinese: '',
     },
-    categoryId: $route.params.categorgId as string
+    categoryId: $route.query.id as string
 });
 
 onMounted(async () => {
-    const categorgId = $route.params.categorgId as string;
-    await getAblumList(categorgId);
+    const categorgId = $route.query.id as string;
+    await getalbumList(categorgId);
 });
 
-const getAblumList = async (categorgId: string) => {
+const getalbumList = async (categorgId: string) => {
     let result: AlbumListResponse[] = await reqblumList(categorgId)
     tableData.value = result;
 }
@@ -70,15 +70,15 @@ const editAlbum = async () => {
         message: `${titlevalue}完成`,
     });
 
-    await getAblumList(form.categoryId);
+    await getalbumList(form.categoryId);
 }
 
 const handleEdit = async (row: AlbumListResponse) => {
     dialogFormVisible.value = true;
     dialogTitle.value = "修改"
-    let ablum: AlbumListResponse = await reqFind(row.id)
-    form.english = ablum.name.english;
-    form.chinese = ablum.name.chinese;
+    let album: AlbumListResponse = await reqFind(row.id)
+    form.english = album.name.english;
+    form.chinese = album.name.chinese;
     form.currentId = row.id;
 }
 
@@ -91,7 +91,7 @@ const handleDelete = async (row: AlbumListResponse) => {
                 message: `删除完成`,
             });
 
-            await getAblumList(form.categoryId);
+            await getalbumList(form.categoryId);
         })
         .catch(() => {
             // catch error
@@ -99,7 +99,8 @@ const handleDelete = async (row: AlbumListResponse) => {
 }
 
 const handleEpisode = async (row: AlbumListResponse) => {
-    $router.push({ path: `/listenadmin/ablum${row.id}` })  // 使用 id 进行路由跳转  
+   // 在组件中使用router.push()跳转到带有参数的路由
+   $router.push({ path: '/listenadmin/episode',query:{id:row.id}})
 }
 
 </script>
