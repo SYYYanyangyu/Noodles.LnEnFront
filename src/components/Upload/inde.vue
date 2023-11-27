@@ -86,7 +86,7 @@ export default {
             });
         };
 
-        const startUpload = async (file: File) => {
+        const startUpload = async (file: { file: File }) => {
             const formData = new FormData();
             formData.append("file", file.file);
             try {
