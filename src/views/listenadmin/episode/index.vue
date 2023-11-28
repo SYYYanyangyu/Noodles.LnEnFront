@@ -1,10 +1,12 @@
 <script setup lang="ts">
 
 import { ElNotification, ElMessageBox } from 'element-plus';
-import { reqAdd, reqEncodeList, reqEdit, reqDelete, reqList } from '@/api/listenadmin/episode/index';
+import { reqEncodeList, reqDelete, reqList, reqEpisodeEncodingStatus } from '@/api/listenadmin/episode/index';
 import { useRouter, useRoute } from 'vue-router';
 import type { EncodeReponse, EpisodeResponse } from "@/api/listenadmin/episode/type";
 import { reactive, ref, onMounted } from 'vue'
+import * as signalR from '@microsoft/signalr';
+import { stat } from 'fs';
 //获取路由器
 let $router = useRouter();
 //路由对象
@@ -16,6 +18,7 @@ const tableData = ref<EpisodeResponse[]>([]); // 使用 ref 函数定义一个�
 const tableEncodeData = ref<EncodeReponse[]>([]); // 使用 ref 函数定义一个响应式的变量
 const currenId = $route.query.id as string;
 
+const state = reactive({ episodes: [], encodingEpisodes: [], albumId: currenId, isInSortMode: false });
 const form = reactive({
     english: '',
     chinese: '',
@@ -27,9 +30,42 @@ const form = reactive({
 })
 
 onMounted(async () => {
-    const albumId = $route.query.id as string;
-    await getEpsodeList(albumId);
-    await getEncodeList(albumId)
+
+    const albumId = $route.query.id as string || 'default';
+
+    // 加载数据
+    debugger
+    if (albumId != 'default') {
+        await getEpsodeList(albumId);
+        await getEncodeList(albumId)
+
+
+        //禁用Negotiation，客户端一直连接初始的服务器，这样服务器搞负载均衡（不用Redis BackPlane等）也没问题
+        const options = {
+            skipNegotiation: true,
+            transport: 1 // 强制WebSockets
+        };
+
+        const hub = new signalR.HubConnectionBuilder().withUrl(`http://localhost:8089/Listening.Admin/Hubs/EpisodeEncodingStatusHub`, options).build();
+        hub.start();
+        hub.on('OnMediaEncodingStarted', id => {
+            debugger
+            var episode = state.encodingEpisodes.find(e => e.id == id);
+            episode.status = "Started";
+        });
+        hub.on('OnMediaEncodingFailed', id => {
+            debugger
+            var episode = state.encodingEpisodes.find(e => e.id == id);
+            episode.status = "Failed";
+        });
+        hub.on('OnMediaEncodingCompleted', id => {
+            debugger
+            var episode = state.encodingEpisodes.find(e => e.id == id);
+            episode.status = "Completed";
+            getEpsodeList(albumId);
+            getEncodeList(albumId)//遇到由完成任务的就刷新数据
+        });
+    }
 });
 
 const currentPage = ref(1);
@@ -38,18 +74,22 @@ const pageSize = ref(10);
 function handleSizeChange(val: number) {
     pageSize.value = val;
 }
-
 function handleCurrentChange(val: number) {
     currentPage.value = val;
 }
 
-const addform = reactive({
-    name: {
-        english: '',
-        chinese: '',
-    },
-    categoryId: $route.params.categorgId as string
-});
+// 转码状态监听
+const renderEncodingStatus = (status) => {
+    console.log(status);
+    const dict = {
+        "Created": "等待转码",
+        "Started": "转码中",
+        "Failed": "转码失败",
+        "Completed": "转码完成"
+    };
+    const value = dict[status];
+    return value ? value : "未知";
+};
 
 const getEpsodeList = async (albumId: string) => {
     let result: EpisodeResponse[] = await reqList(albumId)
@@ -68,25 +108,6 @@ const formatEpisodeChineseName = (row: EpisodeResponse) => {
 const formatEpisodeEnglishName = (row: EpisodeResponse) => {
     return row.name.english; // 从对象的属性中获取需要渲染的值，例如这里返回 name 的 chinese 属性值
 };
-
-const editEpisode = async () => {
-    addform.name.english = form.english;
-    addform.name.chinese = form.chinese;
-    let titlevalue = dialogTitle.value;
-
-    if (titlevalue == "修改") {
-        await reqEdit(form.currentId, addform);
-    } else {
-        await reqAdd(addform);
-    }
-
-    ElNotification({
-        type: 'success',
-        message: `${titlevalue}完成`,
-    });
-
-    await getEpsodeList(form.categoryId);
-}
 
 const handleEdit = async (row: EpisodeResponse) => {
     dialogFormVisible.value = true;
@@ -113,9 +134,6 @@ const handleDelete = async (row: EpisodeResponse) => {
         })
 }
 
-const handleEpisode = async (row: EpisodeResponse) => {
-    $router.push({ path: `/listenadmin/album/${row.id}` })  // 使用 id 进行路由跳转  
-}
 const handleUpload = async () => {
     // 在组件中使用router.push()跳转到带有参数的路由
     $router.push({ path: '/file/upload', query: { id: currenId } })
@@ -129,7 +147,6 @@ const handleUpload = async () => {
         <el-card class="custom-card">
             <div class="custom-card-content">
                 <el-button type="primary" @click="handleUpload()">添加</el-button>
-                <el-button type="primary">排序</el-button>
             </div>
         </el-card>
 
@@ -151,19 +168,19 @@ const handleUpload = async () => {
                     </template>
                 </el-table-column>
 
-                <el-table-column prop="creationTime" label="创建时间">
-                    <template v-slot:default="{ row }">
-                        <span :class="row.isVisible === false ? 'strike' : ''">{{ row.creationTime }}</span>
+                <el-table-column prop="durationInSecond" label="秒数"></el-table-column>
+
+                <el-table-column prop="durationInSecond" label="转码状态">
+                    <template #default="scope">
+                        {{ renderEncodingStatus(scope.row.status) }}
                     </template>
                 </el-table-column>
-
-                <el-table-column prop="durationInSecond" width="60px" label="秒数"></el-table-column>
 
             </el-table>
 
             <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange"
                 :current-page.sync="currentPage" :page-sizes="[10, 20, 30, 40]" :page-size="pageSize"
-                layout="total, sizes, prev, pager, next, jumper" :total="100">
+                layout="total, sizes, prev, pager, next, jumper" :total="100" style="margin-top: 10px;">
             </el-pagination>
         </el-card>
 
@@ -185,7 +202,7 @@ const handleUpload = async () => {
                     </template>
                 </el-table-column>
 
-                <el-table-column prop="durationInSecond" width="60px" label="秒数"></el-table-column>
+                <el-table-column prop="durationInSecond" label="秒数"></el-table-column>
 
                 <el-table-column prop="creationTime" label="创建时间" />
 
@@ -200,7 +217,7 @@ const handleUpload = async () => {
             </el-table>
             <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange"
                 :current-page.sync="currentPage" :page-sizes="[10, 20, 30, 40]" :page-size="pageSize"
-                layout="total, sizes, prev, pager, next, jumper" :total="100">
+                layout="total, sizes, prev, pager, next, jumper" :total="100" style="margin-top: 10px;">
             </el-pagination>
         </el-card>
     </div>

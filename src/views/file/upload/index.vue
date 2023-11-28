@@ -1,7 +1,8 @@
 <script lang="ts">
 import { ElForm, ElFormItem, ElButton, ElCard, ElMessage } from 'element-plus';
 import { ref, reactive } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
+
 // interface and ts type
 import { reqAdd } from '@/api/listenadmin/episode';
 import type { EpisodeAddRequest } from "@/api/listenadmin/episode/type";
@@ -18,17 +19,19 @@ export default {
     },
     emits: ['update:modelValue'],
     setup(props, { emit }) {
+        //获取路由器
+        let $router = useRouter();
         //路由对象
         let $route = useRoute();
 
         const form = reactive({
-            albumId: $route.query.id as string,
+            albumId: $route.query.id as string || 'default',
             name: {
                 chinese: '',
                 english: '',
             },
             audioUrl: props.modelValue || '',
-            audioSecond: 0,
+            durationInSecond: 0,
             subtitle: '',
             subtitleType: '',
         });
@@ -37,24 +40,34 @@ export default {
 
         const textarea = ref('');
 
+        const loading = ref(false)
+
         const submitForm = async () => {
             try {
+                if (form.albumId == "default") {
+                    ElMessage.warning("添加失败  未选择 episode ！");
+                    return;
+                }
+                loading.value = true;
                 const response = await reqAdd(form as EpisodeAddRequest);
                 if (response) {
+                    loading.value = false;
                     ElMessage.success("添加成功");
-                    // 这里可以进行其他成功处理逻辑
+                    setTimeout(() => {
+                        $router.push({ path: '/listenadmin/episode', query: { id: form.albumId } })
+                    }, 2000);
                 } else {
+                    loading.value = false;
                     ElMessage.error("添加失败");
-                    // 这里可以进行其他失败处理逻辑
                 }
             } catch (error) {
-                console.error('Error submitting form:', error);
+                loading.value = false;
                 ElMessage.error('表单提交失败');
             }
         };
 
-        const audioSecond = (msg:number) => {
-           form.audioSecond = msg
+        const audioSecond = (msg: number) => {
+            form.durationInSecond = msg
         }
 
         const rules = {
@@ -79,6 +92,7 @@ export default {
             textarea,
             rules,
             options,
+            loading,
             submitForm,
             audioSecond
         };
@@ -92,7 +106,7 @@ export default {
             <div class="header">
                 <h1>音频和字幕上传</h1>
             </div>
-            <div class="upload-form">
+            <div class="upload-form" v-loading="loading">
                 <el-form :model="form" :rules="rules" ref="formRef" label-width="120px">
                     <el-form-item label="中文名称">
                         <el-input v-model="form.name.chinese" class="responsive-input" />
@@ -102,21 +116,20 @@ export default {
                         <el-input v-model="form.name.english" class="responsive-input" />
                     </el-form-item>
 
-                    <!-- <upload-component v-model="form.audioUrl" /> -->
-                    <upload-component v-model="form.audioUrl" @audio-Second = "audioSecond"/>
+                    <upload-component v-model="form.audioUrl" @audio-Second="audioSecond" />
 
                     <el-form-item label="音频时长">
-                        <el-input v-model="form.audioSecond" disabled class="responsive-input" />
+                        <el-input v-model="form.durationInSecond" disabled class="responsive-input" />
                     </el-form-item>
 
                     <el-form-item label="字幕类型">
-                        <el-select v-model="value" class="m-2" placeholder="请选择字幕类型" size="large">
+                        <el-select v-model="form.subtitleType" class="m-2" placeholder="请选择字幕类型" size="large">
                             <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value" />
                         </el-select>
                     </el-form-item>
 
                     <el-form-item label="字幕文件" prop="subtitleFile">
-                        <el-input v-model="textarea" :rows="5" type="textarea" placeholder="请输入字幕文件"
+                        <el-input v-model="form.subtitle" :rows="5" type="textarea" placeholder="请输入字幕文件"
                             class="responsive-input" />
                     </el-form-item>
 

@@ -26,7 +26,7 @@ interface Form {
     audioUrl: Ref<string>;
     percentage: Ref<number>;
     status: Ref<string>;
-    audioSecond:Ref<number>;
+    audioSecond: Ref<number>;
 }
 
 export default {
@@ -34,19 +34,19 @@ export default {
         modelValue: String,
         audioValue: Number
     },
-    emits: ['update:modelValue','audio-Second'],
+    emits: ['update:modelValue', 'audio-Second'],
     setup(props, { emit }) {
         const form: Form = {
             audioUrl: ref(''),
             percentage: ref(0),
             status: ref('warning'),
-            audioSecond:ref(0)
+            audioSecond: ref(0)
         };
 
         const fileName = ref('');
         const uploadRef = ref();
 
-        const updateFormState = (url: string, percentage: number, status: string,audioSecond:number) => {
+        const updateFormState = (url: string, percentage: number, status: string, audioSecond: number) => {
             form.audioUrl.value = url;
             form.percentage.value = percentage;
             form.status.value = status;
@@ -91,17 +91,16 @@ export default {
             formData.append("file", file.file);
             try {
                 const remoteUrl = await UploadAudio(formData);
-
                 // 计算音频时长
                 const audio = new Audio(remoteUrl);
                 audio.addEventListener('canplaythrough', () => {
-                    const duration = Math.floor(audio.duration);
-                    updateFormState(remoteUrl, 100, 'success',duration);
+                    const duration = audio.duration;
+                    updateFormState(remoteUrl, 100, 'success', duration);
                     emit('update:modelValue', remoteUrl);
                     emit('audio-Second', duration);
                 });
             } catch (error) {
-                updateFormState('', 0, 'error',0);
+                updateFormState('', 0, 'error', 0);
             }
         };
 
