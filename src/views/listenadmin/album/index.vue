@@ -12,7 +12,6 @@ let $route = useRoute();
 const dialogTitle = ref('添加');
 const dialogFormVisible = ref(false)
 const tableData = ref<AlbumListResponse[]>([]); // 使用 ref 函数定义一个响应式的变量
-const formLabelWidth = '140px'
 const form = reactive({
     english: '',
     chinese: '',
@@ -166,11 +165,11 @@ const handleEpisode = async (row: AlbumListResponse) => {
         <el-dialog v-model="dialogFormVisible" :title="dialogTitle">
             <el-form :model="form">
 
-                <el-form-item label="english title" :label-width="formLabelWidth">
+                <el-form-item label="english title">
                     <el-input v-model="form.english" autocomplete="off" />
                 </el-form-item>
 
-                <el-form-item label="chinese title" :label-width="formLabelWidth">
+                <el-form-item label="chinese title">
                     <el-input v-model="form.chinese" autocomplete="off" />
                 </el-form-item>
 

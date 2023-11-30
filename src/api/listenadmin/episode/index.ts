@@ -10,6 +10,7 @@ import type {
 
 
 enum API {
+  EpisodeFind_URL = '/Listening.Admin/Episode/FindById/',
   EpisodeAdd_URL = '/Listening.Admin/Episode/Add',
   EpisodeList_URL = '/Listening.Admin/Episode/FindByalbumId/',
   EncodeList_URL = '/Listening.Admin/Episode/FindEncodingEpisodesByalbumId/',
@@ -21,6 +22,10 @@ enum API {
   EpisodeEncodingStatusHub_URL = '/Listening.Admin/Hubs/EpisodeEncodingStatusHub',
 
 }
+
+// 根据Id查询
+export const reqFindById = async (id: string) =>
+  request.get<any, EpisodeResponse>(`${API.EpisodeFind_URL}${id}`)
 
 // 添加
 export const reqAdd = async (data: EpisodeAddRequest) =>
