@@ -40,22 +40,23 @@ export const constantRoute = [
         component: () => import('@/views/404/index.vue'),
         name: '404',
         meta: {
-          title: '404',
-          hidden: true,
+            title: '404',
+            hidden: true,
         },
-      },
+    },
 ]
 
 export const asyncRoute = [
     {
-        path:'/listenadmin',
+        path: '/listenadmin',
         component: () => import('@/layout/index.vue'),
         name: 'Category',
         meta: {
             title: '目录管理',
+            hidden: false,
             icon: 'Collection',
         },
-        redirect:'/listenadmin/category',
+        redirect: '/listenadmin/category',
         children: [
             {
                 path: '/listenadmin/category',
@@ -63,6 +64,7 @@ export const asyncRoute = [
                 name: "category",
                 meta: {
                     title: '听力管理',
+                    hidden: false,
                     icon: 'Headset',
                 }
             },
@@ -72,6 +74,7 @@ export const asyncRoute = [
                 name: "album",
                 meta: {
                     title: '专辑管理',
+                    hidden: false,
                     icon: 'Flag',
                 }
             },
@@ -81,20 +84,22 @@ export const asyncRoute = [
                 name: "episode",
                 meta: {
                     title: '片段管理',
+                    hidden: false,
                     icon: 'Flag',
                 }
             }
         ]
     },
     {
-        path:'/file',
+        path: '/file',
         component: () => import('@/layout/index.vue'),
         name: 'File',
         meta: {
             title: '文件管理',
+            hidden: false,
             icon: 'Files',
         },
-        redirect:'/file/management',
+        redirect: '/file/management',
         children: [
             {
                 path: '/file/management',
@@ -102,6 +107,7 @@ export const asyncRoute = [
                 name: "Manage",
                 meta: {
                     title: '文件预览',
+                    hidden: false,
                     icon: 'Management',
                 }
             },
@@ -111,21 +117,22 @@ export const asyncRoute = [
                 name: "Upload",
                 meta: {
                     title: '文件上传',
+                    hidden: false,
                     icon: 'Files',
                 }
             },
         ]
     },
-  ]
-  
+]
+
 
 export const anyRoute = {
     path: '/:pathMatch(.*)*',
     redirect: '/404',
     name: 'Any',
     meta: {
-      title: '任意路由',
-      hidden: true,
+        title: '任意路由',
+        hidden: true,
     },
-  }
-  
+}
+

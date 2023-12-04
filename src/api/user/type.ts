@@ -23,7 +23,7 @@ export interface userInfoReponseData extends ResponseData {
     routes: string[]
     buttons: string[]
     roles: string[]
-    username: string
+    userName: string
     avatar: string
   }
 }

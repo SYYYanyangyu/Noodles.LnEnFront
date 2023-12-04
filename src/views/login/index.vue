@@ -57,8 +57,10 @@ const login = async () => {
         await useStore.userLogin(loginForm);
         //编程式导航跳转到展示数据首页
         //判断登录的时候,路由路径当中是否有query参数，如果有就往query参数挑战，没有跳转到首页
-        let redirect: any = $route.query.redirect;
-        $router.push({ path: redirect || '/' });
+        let redirect: string = $route.query.redirect as string
+        console.log(redirect)
+        $router.push({ path: redirect || '/' })
+        $router.push('/')
         //登录成功提示信息
         ElNotification({
             type: 'success',
@@ -68,6 +70,7 @@ const login = async () => {
         //登录成功加载效果也消失
         loading.value = false;
     } catch (error) {
+        console.log(error);
         // //登录失败加载效果消息
         loading.value = false;
         // //登录失败的提示信息
