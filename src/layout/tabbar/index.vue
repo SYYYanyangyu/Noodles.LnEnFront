@@ -1,41 +1,34 @@
-<template>
-    <div class="tabbar">
-        <div class="tabbar_left">
-            <Breadcrumb />
-        </div>
-        <div class="tabbar_right">
-            <Setting />
-        </div>
-    </div>
-</template>
-
 <script setup lang="ts">
-import Breadcrumb from './breadcrumb/index.vue'
-import Setting from './setting/index.vue';
+import BreadCrumb from './breadcrumb/index.vue'
+import Setting from './setting/index.vue'
 </script>
-<script lang="ts">
-export default{
-    name:"Tabbar"
-}
-</script>
-<style scoped lang="scss">
-.tabbar {
-    width: 100%;
-    height: 100%;
+<template>
+  <el-header style="text-align: right; font-size: 12px">
+    <div class="toolbar">
+      <div class="toolbar_left">
+        <BreadCrumb />
+      </div>
+      <div class="toolbar_right">
+        <Setting />
+      </div>
+    </div>
+  </el-header>
+</template>
+<style lang="scss" scoped>
+.toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  .toolbar_left {
     display: flex;
-    justify-content: space-between;
-    background-image: linear-gradient(to right, rgb(232, 223, 223), rgb(201, 178, 178), rgb(197, 165, 165));
-
-    .tabbar_left {
-        display: flex;
-        align-items: center;
-        margin-left: 20px;
-
-    }
-
-    .tabbar_right {
-        display: flex;
-        align-items: center;
-    }
+    align-items: center;
+    margin-left: 10px;
+  }
+  .toolbar_right {
+    display: flex;
+    align-items: center;
+  }
 }
 </style>

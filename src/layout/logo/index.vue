@@ -1,34 +1,48 @@
-<template>
-    <div class="logo" v-if="setting.logoHidden">
-        <img :src="setting.logo" alt="">
-        <p>{{setting.title}}</p>
-    </div>
-</template>
+<!--
+ *  菜单栏左上角的logo
 
+ *
+-->
 <script setup lang="ts">
-//引入设置标题与logo这配置文件
-import setting from '@/settings';
+import setting from '@/settings'
 </script>
-<script lang="ts">
-export default{
-    name:"Logo"
-}
-</script>
-<style scoped lang="scss">
+<template>
+  <div class="logo" v-if="setting.logoHidden">
+    <img :src="setting.logo" alt="" />
+    <span class="title">{{ setting.title }}</span>
+  </div>
+</template>
+<style lang="scss" scoped>
 .logo {
-    width: 100%;
-    height: $base-menu-logo-height;
-    color: white;
-    display: flex;
-    align-items: center;
-    padding: 10px;
-    img{
-        width: 40px;
-        height: 40px;
-    }
-    p{
-       font-size: $base-logo-title-fontSize; 
-       margin-left: 10px;
-    }
+  width: 95%;
+  display: flex;
+  align-items: center;
+  height: $base-menu-logo-height;
+  color: #959ea6;
+  font-weight: 700;
+  font-size: $base-logo-title-fontSize;
+  flex-wrap: nowrap;
+  overflow: hidden;
+  padding-left: 17px;
+
+  img {
+    display: inline-block;
+    widows: 30px;
+    height: 30px;
+    border-radius: 10px;
+  }
+
+  .title {
+    display: inline-block;
+    height: 32px;
+    margin: 2px 0 0 18px;
+    overflow: hidden;
+    font-size: 18px;
+    font-weight: 600;
+    line-height: 32px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
 }
 </style>
+
