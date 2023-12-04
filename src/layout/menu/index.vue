@@ -1,15 +1,9 @@
-<!--
- * @Description: Stay hungry，Stay foolish
- * @Author: Huccct
- * @Date: 2023-05-21 10:06:22
- * @LastEditors: Huccct
- * @LastEditTime: 2023-05-29 09:33:24
--->
 <script setup lang="ts" name="Menu">
+import Menu from './index.vue'
 defineProps(['menuList'])
 </script>
 <template>
-  <template v-for="(item, index) in menuList" :key="item.path">
+  <template v-for="(item) in menuList" :key="item.path">
     <!-- 没有子路由 -->
     <template v-if="!item.children">
       <el-menu-item v-if="!item.meta.hidden" :index="item.path">

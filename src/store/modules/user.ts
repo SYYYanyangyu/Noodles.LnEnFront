@@ -75,6 +75,7 @@ let useUserStore = defineStore('User', {
                 this.menuRoutes = [...constantRoute, ...userAsyncRoute, anyRoute];[...userAsyncRoute, anyRoute].forEach((route: any) => {
                     router.addRoute(route)
                 })
+                console.log('this.menuRoutes',this.menuRoutes)
                 return 'ok';
             } else {
                 console.log("err")
