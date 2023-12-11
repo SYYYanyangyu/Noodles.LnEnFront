@@ -61,7 +61,7 @@ export const asyncRoute = [
             {
                 path: '/listenadmin/category',
                 component: () => import('@/views/listenadmin/category/index.vue'),
-                name: "category",
+                name: "Category",
                 meta: {
                     title: '听力管理',
                     hidden: false,
@@ -71,7 +71,7 @@ export const asyncRoute = [
             {
                 path: '/listenadmin/album',
                 component: () => import('@/views/listenadmin/album/index.vue'),
-                name: "album",
+                name: "Album",
                 meta: {
                     title: '专辑管理',
                     hidden: false,
@@ -81,7 +81,7 @@ export const asyncRoute = [
             {
                 path: '/listenadmin/episode',
                 component: () => import('@/views/listenadmin/episode/index.vue'),
-                name: "episode",
+                name: "Episode",
                 meta: {
                     title: '片段管理',
                     hidden: false,
