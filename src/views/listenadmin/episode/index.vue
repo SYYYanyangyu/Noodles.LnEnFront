@@ -250,7 +250,7 @@ const handleUpload = async () => {
                     <template #default="scope">
                         <el-button size="small" type="danger" @click="handleDelete(scope.row)">删除</el-button>
                         <el-button size="small" @click="handleEdit(scope.row)">修改</el-button>
-                        <el-button size="small" type="primary" @click="handleEpisode(scope.row)">隐藏</el-button>
+                        <!-- <el-button size="small" type="primary" @click="handleEpisode(scope.row)">隐藏</el-button> -->
                     </template>
                 </el-table-column>
 

@@ -74,18 +74,18 @@ const formatDefault = (row: CategoryResponse) => {
     return row.lastModificationTime == null ? "暂无修改" : row.lastModificationTime; // 从对象的属性中获取需要渲染的值，例如这里返回 name 的 chinese 属性值
 }
 
-const fileList = ref<UploadUserFile[]>([
-    {
-        name: 'food.jpeg',
-        url: 'https://fuss10.elemecdn.com/3/63/4e7f3a15429bfda99bce42a18cdd1jpeg.jpeg?imageMogr2/thumbnail/360x360/format/webp/quality/100',
-    },
-])
-const handleRemove: UploadProps['onRemove'] = (uploadFile, uploadFiles) => {
-    console.log(uploadFile, uploadFiles)
-}
-const handlePreview: UploadProps['onPreview'] = (file) => {
-    console.log(file)
-}
+// const fileList = ref<UploadUserFile[]>([
+//     {
+//         name: 'food.jpeg',
+//         url: 'https://fuss10.elemecdn.com/3/63/4e7f3a15429bfda99bce42a18cdd1jpeg.jpeg?imageMogr2/thumbnail/360x360/format/webp/quality/100',
+//     },
+// ])
+// const handleRemove: UploadProps['onRemove'] = (uploadFile, uploadFiles) => {
+//     console.log(uploadFile, uploadFiles)
+// }
+// const handlePreview: UploadProps['onPreview'] = (file) => {
+//     console.log(file)
+// }
 
 const handleEdit = async (row: CategoryResponse) => {
     dialogFormVisible.value = true;
@@ -180,9 +180,9 @@ const handlealbum = async (row: CategoryResponse) => {
                     <el-input v-model="form.coverUrl" autocomplete="off" />
                 </el-form-item>
 
-                <el-upload v-model:file-list="fileList" class="upload-demo"
-                    action="http://localhost/FileService/Uploader/UploadImages" :on-preview="handlePreview"
-                    :on-remove="handleRemove" :auto-upload="true" list-type="picture">
+                <el-upload  class="upload-demo"
+                    action="http://localhost/FileService/Uploader/UploadImages" 
+                    :auto-upload="true" list-type="picture">
                     <el-button type="primary">Click to upload</el-button>
                     <template #tip>
                         <div class="el-upload__tip">
