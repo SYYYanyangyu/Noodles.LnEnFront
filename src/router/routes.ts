@@ -85,7 +85,7 @@ export const asyncRoute = [
                 meta: {
                     title: '片段管理',
                     hidden: false,
-                    icon: 'Flag',
+                    icon: 'Postcard',
                 }
             }
         ]

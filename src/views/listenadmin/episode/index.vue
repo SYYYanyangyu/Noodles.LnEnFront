@@ -6,14 +6,20 @@ import { useRouter, useRoute } from 'vue-router';
 import type { EncodeReponse, EpisodeResponse, EditRequest } from "@/api/listenadmin/episode/type";
 import { reactive, ref, onMounted, watch } from 'vue'
 import * as signalR from '@microsoft/signalr';
+//component
+import ElPagination from '@/components/Pagination/index.vue';
+const total = ref(0);
+const pageSize = ref(10); // 每页显示 10 条数据
+const currentPage = ref(1); // 当前页码
+
 let $router = useRouter();
 //路由对象
 let $route = useRoute();
 
 const dialogTitle = ref('添加')
 const dialogFormVisible = ref(false)
-const tableData = ref<EpisodeResponse[]>([]); // 使用 ref 函数定义一个响应式的变量
-const tableEncodeData = ref<EncodeReponse[]>([]); // 使用 ref 函数定义一个响应式的变量
+const tableData = ref<EpisodeResponse[]>([]);
+const tableEncodeData = ref<EncodeReponse[]>([]);
 const form = reactive({
     english: '',
     chinese: '',
@@ -40,9 +46,6 @@ const options = [
     { value: 'lrc', label: 'lrc' },
     { value: 'json', label: 'json' },
 ];
-
-const currentPage = ref(1);
-const pageSize = ref(10);
 
 // signalR 后端交互
 onMounted(async () => {
@@ -82,6 +85,11 @@ onMounted(async () => {
             getEpsodeList(albumId);
             getEncodeList(albumId)//遇到由完成任务的就刷新数据
         });
+    } else {
+        ElNotification({
+            type: 'info',
+            message: `选择对应的专辑后可查看对应的片段`,
+        });
     }
 });
 
@@ -93,12 +101,14 @@ watch([form.chinese, form.english, form.subtitleType, form.subtitle], () => {
     editData.value.subtitle = form.subtitle;
 });
 
-function handleSizeChange(val: number) {
-    pageSize.value = val;
-}
-function handleCurrentChange(val: number) {
-    currentPage.value = val;
-}
+// 处理分页组件的页码变化事件
+const handlePageChange = async (pageIndex: number) => {
+  currentPage.value = pageIndex;
+  const categoryId = $route.query.id as string || 'default';
+  if (categoryId !== 'default') {
+    await getEncodeList($route.query.id as string);
+  }
+};
 // 转码状态监听
 const renderEncodingStatus = (status: string) => {
     const dict = {
@@ -218,10 +228,7 @@ const handleUpload = async () => {
 
             </el-table>
 
-            <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange"
-                :current-page.sync="currentPage" :page-sizes="[10, 20, 30, 40]" :page-size="pageSize"
-                layout="total, sizes, prev, pager, next, jumper" :total="100" style="margin-top: 10px;">
-            </el-pagination>
+            <ElPagination :total="total" :page-size="pageSize" @change="handlePageChange" />
         </el-card>
 
         <el-card class="transcode-card">
@@ -250,15 +257,12 @@ const handleUpload = async () => {
                     <template #default="scope">
                         <el-button size="small" type="danger" @click="handleDelete(scope.row)">删除</el-button>
                         <el-button size="small" @click="handleEdit(scope.row)">修改</el-button>
-                        <el-button size="small" type="primary" @click="handleEpisode(scope.row)">隐藏</el-button>
+                        <!-- <el-button size="small" type="primary" @click="handleEpisode(scope.row)">隐藏</el-button> -->
                     </template>
                 </el-table-column>
 
             </el-table>
-            <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange"
-                :current-page.sync="currentPage" :page-sizes="[10, 20, 30, 40]" :page-size="pageSize"
-                layout="total, sizes, prev, pager, next, jumper" :total="100" style="margin-top: 10px;">
-            </el-pagination>
+            <ElPagination :total="total" :page-size="pageSize" @change="handlePageChange" />
         </el-card>
     </div>
 

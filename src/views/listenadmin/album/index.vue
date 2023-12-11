@@ -5,6 +5,12 @@ import { reqAdd, reqblumList, reqEdit, reqDelete, reqFind } from '@/api/listenad
 import { useRouter, useRoute } from 'vue-router';
 import type { AlbumListResponse } from "@/api/listenadmin/album/type";
 import { reactive, ref, onMounted } from 'vue'
+//component
+import ElPagination from '@/components/Pagination/index.vue';
+const total = ref(0);
+const pageSize = ref(10); // 每页显示 10 条数据
+const currentPage = ref(1); // 当前页码
+
 //获取路由器
 let $router = useRouter();
 //路由对象
@@ -15,12 +21,6 @@ const tableData = ref<AlbumListResponse[]>([]); // 使用 ref 函数定义一个
 const form = reactive({
     english: '',
     chinese: '',
-    region: '',
-    date1: '',
-    date2: '',
-    delivery: false,
-    type: [],
-    resource: '',
     desc: '',
     currentId: '',
     categoryId: $route.query.id as string
@@ -35,14 +35,33 @@ const addform = reactive({
 });
 
 onMounted(async () => {
-    const categorgId = $route.query.id as string;
-    await getalbumList(categorgId);
+
+    const albumId = $route.query.id as string || 'default';
+
+    if (albumId != 'default') {
+        const categorgId = $route.query.id as string;
+        await getalbumList(categorgId);
+    } else {
+        ElNotification({
+            type: 'info',
+            message: `选择对应的目录后可查看对应的专辑`,
+        });
+    }
 });
 
 const getalbumList = async (categorgId: string) => {
     let result: AlbumListResponse[] = await reqblumList(categorgId)
     tableData.value = result;
 }
+
+// 处理分页组件的页码变化事件
+const handlePageChange = async (pageIndex: number) => {
+    currentPage.value = pageIndex;
+    const categoryId = $route.query.id as string || 'default';
+    if (categoryId !== 'default') {
+        await getalbumList($route.query.id as string);
+    }
+};
 
 const formatEpisodeChineseName = (row: AlbumListResponse) => {
     return row.name.chinese; // 从对象的属性中获取需要渲染的值，例如这里返回 name 的 chinese 属性值
@@ -98,8 +117,8 @@ const handleDelete = async (row: AlbumListResponse) => {
 }
 
 const handleEpisode = async (row: AlbumListResponse) => {
-   // 在组件中使用router.push()跳转到带有参数的路由
-   $router.push({ path: '/listenadmin/episode',query:{id:row.id}})
+    // 在组件中使用router.push()跳转到带有参数的路由
+    $router.push({ path: '/listenadmin/episode', query: { id: row.id } })
 }
 
 </script>
@@ -154,7 +173,7 @@ const handleEpisode = async (row: AlbumListResponse) => {
                     </div>
 
                     <div class="type-pagenation">
-                        <el-pagination small background layout="prev, pager, next" :total="50" class="mt-4" />
+                        <ElPagination :total="total" :page-size="pageSize" @change="handlePageChange" />
                     </div>
                 </el-card>
             </el-col>

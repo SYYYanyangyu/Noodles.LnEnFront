@@ -1,0 +1,1 @@
+import{Q as a}from"./index-3887b05b.js";const t=e=>a.get(`/FileService/Uploader/FileExists?fileSize=${e.fileSize}&sha256Hash=${e.sha256Hash}`),o=async e=>a.post("/FileService/Uploader/Upload",e,{headers:{"Content-Type":"multipart/form-data"}}),i=async e=>a.post("/FileService/Uploader/UploadImages",e,{headers:{"Content-Type":"multipart/form-data"}});export{i as U,o as a,t as r};

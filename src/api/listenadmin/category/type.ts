@@ -2,6 +2,7 @@
 export interface CategoryAddRequest {
     name: Name;
     coverUrl: string;
+    path:string;
 }
 
 //定义全部接口返回数据都拥有ts类型
