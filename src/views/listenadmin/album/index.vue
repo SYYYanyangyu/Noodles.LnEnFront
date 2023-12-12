@@ -88,6 +88,8 @@ const editAlbum = async () => {
         message: `${titlevalue}完成`,
     });
 
+    dialogFormVisible.value = false;
+
     await getalbumList(form.categoryId);
 }
 
@@ -132,7 +134,7 @@ const handleEpisode = async (row: AlbumListResponse) => {
                         <div class="card-header">
                             <span>分类管理</span>
                             <el-row class="mb-4">
-                                <el-button type="primary" @click="dialogFormVisible = true">添加</el-button>
+                                <el-button type="primary" @click="dialogTitle = '添加', dialogFormVisible = true">添加</el-button>
                                 <el-button type="primary">排序</el-button>
                             </el-row>
                         </div>
