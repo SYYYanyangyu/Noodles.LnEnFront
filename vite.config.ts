@@ -40,7 +40,7 @@ export default defineConfig(({ command, mode }) => {
           //需要代理跨域
           changeOrigin: true,
           //路径重写
-          rewrite: (path) => path.replace(/^\/api/, ''),
+          rewrite: (path) => path.replace(/^\/api/, '')
         }
       }
     }
